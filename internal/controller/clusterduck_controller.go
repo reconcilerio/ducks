@@ -17,47 +17,21 @@ limitations under the License.
 package controller
 
 import (
-	"context"
+	"reconciler.io/runtime/reconcilers"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-
-	ducksreconcileriov1 "reconciler.io/ducks/api/v1"
+	ducksv1 "reconciler.io/ducks/api/v1"
 )
-
-// ClusterDuckReconciler reconciles a ClusterDuck object
-type ClusterDuckReconciler struct {
-	client.Client
-	Scheme *runtime.Scheme
-}
 
 // +kubebuilder:rbac:groups=ducks.reconciler.io,resources=clusterducks,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=ducks.reconciler.io,resources=clusterducks/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=ducks.reconciler.io,resources=clusterducks/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the ClusterDuck object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.20.4/pkg/reconcile
-func (r *ClusterDuckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = logf.FromContext(ctx)
+func ClusterDuckReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*ducksv1.ClusterDuck] {
+	return &reconcilers.ResourceReconciler[*ducksv1.ClusterDuck]{
+		Reconciler: reconcilers.Sequence[*ducksv1.ClusterDuck]{
+			// TODO implement
+		},
 
-	// TODO(user): your logic here
-
-	return ctrl.Result{}, nil
-}
-
-// SetupWithManager sets up the controller with the Manager.
-func (r *ClusterDuckReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&ducksreconcileriov1.ClusterDuck{}).
-		Named("clusterduck").
-		Complete(r)
+		Config: c,
+	}
 }

@@ -14,71 +14,62 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package controller_test
 
 import (
-	"context"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"testing"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	diemetav1 "reconciler.io/dies/apis/meta/v1"
+	"reconciler.io/runtime/reconcilers"
+	rtesting "reconciler.io/runtime/testing"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	ducksreconcileriov1 "reconciler.io/ducks/api/v1"
+	ducksv1 "reconciler.io/ducks/api/v1"
+	"reconciler.io/ducks/internal/controller"
 )
 
-var _ = Describe("ClusterDuck Controller", func() {
-	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+func TestClusterDuckReconciler(t *testing.T) {
+	namespace := "test-namespace"
+	name := "my-duck"
+	request := reconcilers.Request{NamespacedName: types.NamespacedName{Namespace: namespace, Name: name}}
 
-		ctx := context.Background()
+	scheme := runtime.NewScheme()
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(ducksv1.AddToScheme(scheme))
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
-		}
-		clusterduck := &ducksreconcileriov1.ClusterDuck{}
+	now := metav1.Now().Rfc3339Copy()
 
-		BeforeEach(func() {
-			By("creating the custom resource for the Kind ClusterDuck")
-			err := k8sClient.Get(ctx, typeNamespacedName, clusterduck)
-			if err != nil && errors.IsNotFound(err) {
-				resource := &ducksreconcileriov1.ClusterDuck{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
-					},
-					// TODO(user): Specify other spec details if needed.
-				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
-			}
+	given := ducksv1.ClusterDuckBlank.
+		MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+			d.Namespace(namespace)
+			d.Name(name)
+			d.Generation(1)
+		}).
+		StatusDie(func(d *ducksv1.ClusterDuckStatusDie) {
+			d.InitializeConditionsDie(now.Time)
+			d.ObservedGeneration(1)
 		})
 
-		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &ducksreconcileriov1.ClusterDuck{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
+	rts := rtesting.ReconcilerTests{
+		"in sync": {
+			Request: request,
+			StatusSubResourceTypes: []client.Object{
+				&ducksv1.ClusterDuck{},
+			},
+			GivenObjects: []client.Object{
+				given,
+			},
+			Now: now.Time,
+		},
+	}
 
-			By("Cleanup the specific resource instance ClusterDuck")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
-		})
-		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &ClusterDuckReconciler{
-				Client: k8sClient,
-				Scheme: k8sClient.Scheme(),
-			}
-
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: typeNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
-		})
+	rts.Run(t, scheme, func(t *testing.T, tc *rtesting.ReconcilerTestCase, c reconcilers.Config) reconcile.Reconciler {
+		return controller.ClusterDuckReconciler(c)
 	})
-})
+}

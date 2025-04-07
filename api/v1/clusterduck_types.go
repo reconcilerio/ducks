@@ -18,10 +18,10 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"reconciler.io/runtime/apis"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// +die
 
 // ClusterDuckSpec defines the desired state of ClusterDuck.
 type ClusterDuckSpec struct {
@@ -32,15 +32,17 @@ type ClusterDuckSpec struct {
 	Foo string `json:"foo,omitempty"`
 }
 
+// +die
+
 // ClusterDuckStatus defines the observed state of ClusterDuck.
 type ClusterDuckStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	apis.Status `json:",inline"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Cluster
+// +die:object=true,apiVersion=ducks.reconciler.io/v1,kind=ClusterDuck
 
 // ClusterDuck is the Schema for the clusterducks API.
 type ClusterDuck struct {
