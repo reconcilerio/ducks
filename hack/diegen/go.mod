@@ -2,7 +2,7 @@ module reconciler.io/ducks/hack/controller-gen
 
 go 1.23.0
 
-require reconciler.io/dies/diegen v0.15.0
+require reconciler.io/dies/diegen v0.15.1
 
 require (
 	github.com/kr/text v0.2.0 // indirect
