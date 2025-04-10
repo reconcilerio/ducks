@@ -7,7 +7,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	k8s.io/apimachinery v0.32.3
 	k8s.io/client-go v0.32.3
-	reconciler.io/dies v0.15.0
+	reconciler.io/dies v0.15.1
 	reconciler.io/runtime v0.23.1-0.20250403105206-ed3718e2cb24
 	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/yaml v1.4.0
