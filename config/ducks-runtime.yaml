@@ -18,27 +18,37 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
     control-plane: controller-manager
-  name: ducks-system
+  name: reconcilerio-system
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.3
-  name: clusterducks.ducks.reconciler.io
+  name: ducktypes.duck.reconciler.io
 spec:
-  group: ducks.reconciler.io
+  group: duck.reconciler.io
   names:
-    kind: ClusterDuck
-    listKind: ClusterDuckList
-    plural: clusterducks
-    singular: clusterduck
+    kind: DuckType
+    listKind: DuckTypeList
+    plural: ducktypes
+    singular: ducktype
   scope: Cluster
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=="Ready")].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
     schema:
       openAPIV3Schema:
-        description: ClusterDuck is the Schema for the clusterducks API.
+        description: DuckType is the Schema for the ducktypes API.
         properties:
           apiVersion:
             description: |-
@@ -58,15 +68,39 @@ spec:
           metadata:
             type: object
           spec:
-            description: ClusterDuckSpec defines the desired state of ClusterDuck.
+            description: DuckTypeSpec defines the desired state of DuckType.
             properties:
-              foo:
-                description: Foo is an example field of ClusterDuck. Edit clusterduck_types.go
-                  to remove/update
+              group:
+                description: |-
+                  Group is the API group of the defined custom resource.
+                  Must match the name of the DuckType (in the form `<plural>.<group>`).
                 type: string
+              kind:
+                description: |-
+                  Kind is the serialized kind of the resource. It is normally CamelCase and singular.
+                  Custom resource instances will use this value as the `kind` attribute in API calls.
+                type: string
+              listKind:
+                description: ListKind is the serialized kind of the list for this
+                  resource. Defaults to "<kind>List".
+                type: string
+              plural:
+                description: |-
+                  Plural is the plural name of the resource to serve.
+                  Must match the name of the DuckType (in the form `<plural>.<group>`).
+                  Must be all lowercase.
+                type: string
+              singular:
+                description: Singular is the singular name of the resource. It must
+                  be all lowercase. Defaults to lowercased `kind`.
+                type: string
+            required:
+            - group
+            - kind
+            - plural
             type: object
           status:
-            description: ClusterDuckStatus defines the observed state of ClusterDuck.
+            description: DuckTypeStatus defines the observed state of DuckType.
             properties:
               conditions:
                 description: Conditions the latest available observations of a resource's
@@ -145,8 +179,8 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-controller-manager
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager
+  namespace: reconcilerio-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -154,8 +188,8 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-leader-election-role
-  namespace: ducks-system
+  name: reconcilerio-ducks-leader-election-role
+  namespace: reconcilerio-system
 rules:
 - apiGroups:
   - ""
@@ -195,18 +229,18 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-clusterduck-admin-role
+  name: reconcilerio-ducks-ducktype-admin-role
 rules:
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks
+  - ducktypees
   verbs:
   - '*'
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks/status
+  - ducktypes/status
   verbs:
   - get
 ---
@@ -216,12 +250,12 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-clusterduck-editor-role
+  name: reconcilerio-ducks-ducktype-editor-role
 rules:
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks
+  - ducktypes
   verbs:
   - create
   - delete
@@ -231,9 +265,9 @@ rules:
   - update
   - watch
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks/status
+  - ducktypes/status
   verbs:
   - get
 ---
@@ -243,32 +277,32 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-clusterduck-viewer-role
+  name: reconcilerio-ducks-ducktype-viewer-role
 rules:
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks
+  - ducktypes
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks/status
+  - ducktypes/status
   verbs:
   - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ducks-manager-role
+  name: reconcilerio-ducks-manager-role
 rules:
 - apiGroups:
-  - ducks.reconciler.io
+  - ""
   resources:
-  - clusterducks
+  - events
   verbs:
   - create
   - delete
@@ -278,24 +312,68 @@ rules:
   - update
   - watch
 - apiGroups:
-  - ducks.reconciler.io
+  - apiextensions.k8s.io
   resources:
-  - clusterducks/finalizers
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiregistration.k8s.io
+  resources:
+  - apiservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes/finalizers
   verbs:
   - update
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks/status
+  - ducktypes/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ducks-metrics-auth-role
+  name: reconcilerio-ducks-metrics-auth-role
 rules:
 - apiGroups:
   - authentication.k8s.io
@@ -313,7 +391,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ducks-metrics-reader
+  name: reconcilerio-ducks-metrics-reader
 rules:
 - nonResourceURLs:
   - /metrics
@@ -326,16 +404,16 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-leader-election-rolebinding
-  namespace: ducks-system
+  name: reconcilerio-ducks-leader-election-rolebinding
+  namespace: reconcilerio-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: ducks-leader-election-role
+  name: reconcilerio-ducks-leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: ducks-controller-manager
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager
+  namespace: reconcilerio-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -343,28 +421,28 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
-  name: ducks-manager-rolebinding
+  name: reconcilerio-ducks-manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ducks-manager-role
+  name: cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: ducks-controller-manager
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager
+  namespace: reconcilerio-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: ducks-metrics-auth-rolebinding
+  name: reconcilerio-ducks-metrics-auth-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ducks-metrics-auth-role
+  name: reconcilerio-ducks-metrics-auth-role
 subjects:
 - kind: ServiceAccount
-  name: ducks-controller-manager
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager
+  namespace: reconcilerio-system
 ---
 apiVersion: v1
 kind: Service
@@ -373,14 +451,31 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
     control-plane: controller-manager
-  name: ducks-controller-manager-metrics-service
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager-metrics-service
+  namespace: reconcilerio-system
 spec:
   ports:
   - name: https
     port: 8443
     protocol: TCP
     targetPort: 8443
+  selector:
+    app.kubernetes.io/name: ducks
+    control-plane: controller-manager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ducks
+  name: reconcilerio-ducks-webhook-service
+  namespace: reconcilerio-system
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 9443
   selector:
     app.kubernetes.io/name: ducks
     control-plane: controller-manager
@@ -392,8 +487,8 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/name: ducks
     control-plane: controller-manager
-  name: ducks-controller-manager
-  namespace: ducks-system
+  name: reconcilerio-ducks-controller-manager
+  namespace: reconcilerio-system
 spec:
   replicas: 1
   selector:
@@ -413,6 +508,7 @@ spec:
         - --metrics-bind-address=:8443
         - --leader-elect
         - --health-probe-bind-address=:8081
+        - --webhook-cert-path=/tmp/k8s-webhook-server/serving-certs
         image: ko://reconciler.io/ducks/cmd
         livenessProbe:
           httpGet:
@@ -421,7 +517,10 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 20
         name: manager
-        ports: []
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
         readinessProbe:
           httpGet:
             path: /readyz
@@ -440,11 +539,91 @@ spec:
           capabilities:
             drop:
             - ALL
-        volumeMounts: []
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: webhook-certs
+          readOnly: true
       securityContext:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: ducks-controller-manager
+      serviceAccountName: reconcilerio-ducks-controller-manager
       terminationGracePeriodSeconds: 10
-      volumes: []
+      volumes:
+      - name: webhook-certs
+        secret:
+          secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ducks
+  name: reconcilerio-ducks-metrics-certs
+  namespace: reconcilerio-system
+spec:
+  dnsNames:
+  - reconcilerio-ducks-controller-manager-metrics-service.reconcilerio-system.svc
+  - reconcilerio-ducks-controller-manager-metrics-service.reconcilerio-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: reconcilerio-ducks-selfsigned-issuer
+  secretName: metrics-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ducks
+  name: reconcilerio-ducks-serving-cert
+  namespace: reconcilerio-system
+spec:
+  dnsNames:
+  - reconcilerio-ducks-webhook-service.reconcilerio-system.svc
+  - reconcilerio-ducks-webhook-service.reconcilerio-system.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: reconcilerio-ducks-selfsigned-issuer
+  secretName: webhook-server-cert
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ducks
+  name: reconcilerio-ducks-selfsigned-issuer
+  namespace: reconcilerio-system
+spec:
+  selfSigned: {}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: reconcilerio-system/reconcilerio-ducks-serving-cert
+  name: reconcilerio-ducks-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: reconcilerio-ducks-webhook-service
+      namespace: reconcilerio-system
+      path: /validate-duck-reconciler-io-v1-ducktype
+  failurePolicy: Fail
+  name: v1.ducktypes.duck.reconciler.io
+  rules:
+  - apiGroups:
+    - duck.reconciler.io
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - ducktypes
+  sideEffects: None

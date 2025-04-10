@@ -5,9 +5,9 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - ducks.reconciler.io
+  - ""
   resources:
-  - clusterducks
+  - events
   verbs:
   - create
   - delete
@@ -17,16 +17,60 @@ rules:
   - update
   - watch
 - apiGroups:
-  - ducks.reconciler.io
+  - apiextensions.k8s.io
   resources:
-  - clusterducks/finalizers
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiregistration.k8s.io
+  resources:
+  - apiservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - duck.reconciler.io
+  resources:
+  - ducktypes/finalizers
   verbs:
   - update
 - apiGroups:
-  - ducks.reconciler.io
+  - duck.reconciler.io
   resources:
-  - clusterducks/status
+  - ducktypes/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

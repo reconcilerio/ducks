@@ -27,29 +27,56 @@ import (
 	testing "reconciler.io/dies/testing"
 )
 
-func TestClusterDuckSpecDie_MissingMethods(t *testingx.T) {
-	die := ClusterDuckSpecBlank
+func TestDuckSpecDie_MissingMethods(t *testingx.T) {
+	die := DuckSpecBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ClusterDuckSpecDie: %s", diff.List())
+		t.Errorf("found missing fields for DuckSpecDie: %s", diff.List())
 	}
 }
 
-func TestClusterDuckStatusDie_MissingMethods(t *testingx.T) {
-	die := ClusterDuckStatusBlank
+func TestDuckStatusDie_MissingMethods(t *testingx.T) {
+	die := DuckStatusBlank
 	ignore := []string{}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ClusterDuckStatusDie: %s", diff.List())
+		t.Errorf("found missing fields for DuckStatusDie: %s", diff.List())
 	}
 }
 
-func TestClusterDuckDie_MissingMethods(t *testingx.T) {
-	die := ClusterDuckBlank
+func TestDuckDie_MissingMethods(t *testingx.T) {
+	die := DuckBlank
 	ignore := []string{"TypeMeta", "ObjectMeta"}
 	diff := testing.DieFieldDiff(die).Delete(ignore...)
 	if diff.Len() != 0 {
-		t.Errorf("found missing fields for ClusterDuckDie: %s", diff.List())
+		t.Errorf("found missing fields for DuckDie: %s", diff.List())
+	}
+}
+
+func TestDuckTypeSpecDie_MissingMethods(t *testingx.T) {
+	die := DuckTypeSpecBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DuckTypeSpecDie: %s", diff.List())
+	}
+}
+
+func TestDuckTypeStatusDie_MissingMethods(t *testingx.T) {
+	die := DuckTypeStatusBlank
+	ignore := []string{}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DuckTypeStatusDie: %s", diff.List())
+	}
+}
+
+func TestDuckTypeDie_MissingMethods(t *testingx.T) {
+	die := DuckTypeBlank
+	ignore := []string{"TypeMeta", "ObjectMeta"}
+	diff := testing.DieFieldDiff(die).Delete(ignore...)
+	if diff.Len() != 0 {
+		t.Errorf("found missing fields for DuckTypeDie: %s", diff.List())
 	}
 }

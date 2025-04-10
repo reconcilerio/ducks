@@ -1,0 +1,21 @@
+apiVersion: duck.reconciler.io/v1
+kind: DuckType
+metadata:
+  labels:
+    app.kubernetes.io/name: ducks
+    app.kubernetes.io/managed-by: kustomize
+  name: samples.duck.reconciler.io
+spec:
+  group: duck.reconciler.io
+  plural: samples
+  kind: Sample
+
+---
+apiVersion: duck.reconciler.io/v1
+kind: Sample
+metadata:
+  name: deployments.apps
+spec:
+  group: apps
+  version: v1
+  kind: Deployment

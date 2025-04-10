@@ -29,7 +29,7 @@ import (
 	cmp "github.com/google/go-cmp/cmp"
 	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	runtime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	json "k8s.io/apimachinery/pkg/util/json"
@@ -40,16 +40,16 @@ import (
 	yaml "sigs.k8s.io/yaml"
 )
 
-var ClusterDuckSpecBlank = (&ClusterDuckSpecDie{}).DieFeed(ClusterDuckSpec{})
+var DuckSpecBlank = (&DuckSpecDie{}).DieFeed(DuckSpec{})
 
-type ClusterDuckSpecDie struct {
+type DuckSpecDie struct {
 	mutable bool
-	r       ClusterDuckSpec
-	seal    ClusterDuckSpec
+	r       DuckSpec
+	seal    DuckSpec
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *ClusterDuckSpecDie) DieImmutable(immutable bool) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieImmutable(immutable bool) *DuckSpecDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -59,12 +59,12 @@ func (d *ClusterDuckSpecDie) DieImmutable(immutable bool) *ClusterDuckSpecDie {
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *ClusterDuckSpecDie) DieFeed(r ClusterDuckSpec) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieFeed(r DuckSpec) *DuckSpecDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ClusterDuckSpecDie{
+	return &DuckSpecDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -72,16 +72,16 @@ func (d *ClusterDuckSpecDie) DieFeed(r ClusterDuckSpec) *ClusterDuckSpecDie {
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckSpecDie) DieFeedPtr(r *ClusterDuckSpec) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieFeedPtr(r *DuckSpec) *DuckSpecDie {
 	if r == nil {
-		r = &ClusterDuckSpec{}
+		r = &DuckSpec{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *ClusterDuckSpecDie) DieFeedJSON(j []byte) *ClusterDuckSpecDie {
-	r := ClusterDuckSpec{}
+func (d *DuckSpecDie) DieFeedJSON(j []byte) *DuckSpecDie {
+	r := DuckSpec{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -89,8 +89,8 @@ func (d *ClusterDuckSpecDie) DieFeedJSON(j []byte) *ClusterDuckSpecDie {
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *ClusterDuckSpecDie) DieFeedYAML(y []byte) *ClusterDuckSpecDie {
-	r := ClusterDuckSpec{}
+func (d *DuckSpecDie) DieFeedYAML(y []byte) *DuckSpecDie {
+	r := DuckSpec{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -98,7 +98,7 @@ func (d *ClusterDuckSpecDie) DieFeedYAML(y []byte) *ClusterDuckSpecDie {
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *ClusterDuckSpecDie) DieFeedYAMLFile(name string) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieFeedYAMLFile(name string) *DuckSpecDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -107,7 +107,7 @@ func (d *ClusterDuckSpecDie) DieFeedYAMLFile(name string) *ClusterDuckSpecDie {
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckSpecDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -116,7 +116,7 @@ func (d *ClusterDuckSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *Clus
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *ClusterDuckSpecDie) DieRelease() ClusterDuckSpec {
+func (d *DuckSpecDie) DieRelease() DuckSpec {
 	if d.mutable {
 		return d.r
 	}
@@ -124,13 +124,13 @@ func (d *ClusterDuckSpecDie) DieRelease() ClusterDuckSpec {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *ClusterDuckSpecDie) DieReleasePtr() *ClusterDuckSpec {
+func (d *DuckSpecDie) DieReleasePtr() *DuckSpec {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *ClusterDuckSpecDie) DieReleaseJSON() []byte {
+func (d *DuckSpecDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -140,7 +140,7 @@ func (d *ClusterDuckSpecDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *ClusterDuckSpecDie) DieReleaseYAML() []byte {
+func (d *DuckSpecDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -150,7 +150,7 @@ func (d *ClusterDuckSpecDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *DuckSpecDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -160,7 +160,7 @@ func (d *ClusterDuckSpecDie) DieReleaseRawExtension() runtime.RawExtension {
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *ClusterDuckSpecDie) DieStamp(fn func(r *ClusterDuckSpec)) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieStamp(fn func(r *DuckSpec)) *DuckSpecDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -169,8 +169,8 @@ func (d *ClusterDuckSpecDie) DieStamp(fn func(r *ClusterDuckSpec)) *ClusterDuckS
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *ClusterDuckSpecDie) DieStampAt(jp string, fn interface{}) *ClusterDuckSpecDie {
-	return d.DieStamp(func(r *ClusterDuckSpec) {
+func (d *DuckSpecDie) DieStampAt(jp string, fn interface{}) *DuckSpecDie {
+	return d.DieStamp(func(r *DuckSpec) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -205,8 +205,8 @@ func (d *ClusterDuckSpecDie) DieStampAt(jp string, fn interface{}) *ClusterDuckS
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ClusterDuckSpecDie) DieWith(fns ...func(d *ClusterDuckSpecDie)) *ClusterDuckSpecDie {
-	nd := ClusterDuckSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *DuckSpecDie) DieWith(fns ...func(d *DuckSpecDie)) *DuckSpecDie {
+	nd := DuckSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -216,9 +216,9 @@ func (d *ClusterDuckSpecDie) DieWith(fns ...func(d *ClusterDuckSpecDie)) *Cluste
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *ClusterDuckSpecDie) DeepCopy() *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DeepCopy() *DuckSpecDie {
 	r := *d.r.DeepCopy()
-	return &ClusterDuckSpecDie{
+	return &DuckSpecDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -226,12 +226,12 @@ func (d *ClusterDuckSpecDie) DeepCopy() *ClusterDuckSpecDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *ClusterDuckSpecDie) DieSeal() *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieSeal() *DuckSpecDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *ClusterDuckSpecDie) DieSealFeed(r ClusterDuckSpec) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieSealFeed(r DuckSpec) *DuckSpecDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -240,51 +240,65 @@ func (d *ClusterDuckSpecDie) DieSealFeed(r ClusterDuckSpec) *ClusterDuckSpecDie 
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckSpecDie) DieSealFeedPtr(r *ClusterDuckSpec) *ClusterDuckSpecDie {
+func (d *DuckSpecDie) DieSealFeedPtr(r *DuckSpec) *DuckSpecDie {
 	if r == nil {
-		r = &ClusterDuckSpec{}
+		r = &DuckSpec{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *ClusterDuckSpecDie) DieSealRelease() ClusterDuckSpec {
+func (d *DuckSpecDie) DieSealRelease() DuckSpec {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *ClusterDuckSpecDie) DieSealReleasePtr() *ClusterDuckSpec {
+func (d *DuckSpecDie) DieSealReleasePtr() *DuckSpec {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *ClusterDuckSpecDie) DieDiff(opts ...cmp.Option) string {
+func (d *DuckSpecDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *ClusterDuckSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *DuckSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-// Foo is an example field of ClusterDuck. Edit clusterduck_types.go to remove/update
-func (d *ClusterDuckSpecDie) Foo(v string) *ClusterDuckSpecDie {
-	return d.DieStamp(func(r *ClusterDuckSpec) {
-		r.Foo = v
+// Group to read the target Duck.
+func (d *DuckSpecDie) Group(v string) *DuckSpecDie {
+	return d.DieStamp(func(r *DuckSpec) {
+		r.Group = v
 	})
 }
 
-var ClusterDuckStatusBlank = (&ClusterDuckStatusDie{}).DieFeed(ClusterDuckStatus{})
+// Version to read the target Duck.
+func (d *DuckSpecDie) Version(v string) *DuckSpecDie {
+	return d.DieStamp(func(r *DuckSpec) {
+		r.Version = v
+	})
+}
 
-type ClusterDuckStatusDie struct {
+// Kind to read the target Duck.
+func (d *DuckSpecDie) Kind(v string) *DuckSpecDie {
+	return d.DieStamp(func(r *DuckSpec) {
+		r.Kind = v
+	})
+}
+
+var DuckStatusBlank = (&DuckStatusDie{}).DieFeed(DuckStatus{})
+
+type DuckStatusDie struct {
 	mutable bool
-	r       ClusterDuckStatus
-	seal    ClusterDuckStatus
+	r       DuckStatus
+	seal    DuckStatus
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *ClusterDuckStatusDie) DieImmutable(immutable bool) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieImmutable(immutable bool) *DuckStatusDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -294,12 +308,12 @@ func (d *ClusterDuckStatusDie) DieImmutable(immutable bool) *ClusterDuckStatusDi
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *ClusterDuckStatusDie) DieFeed(r ClusterDuckStatus) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieFeed(r DuckStatus) *DuckStatusDie {
 	if d.mutable {
 		d.r = r
 		return d
 	}
-	return &ClusterDuckStatusDie{
+	return &DuckStatusDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -307,16 +321,16 @@ func (d *ClusterDuckStatusDie) DieFeed(r ClusterDuckStatus) *ClusterDuckStatusDi
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckStatusDie) DieFeedPtr(r *ClusterDuckStatus) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieFeedPtr(r *DuckStatus) *DuckStatusDie {
 	if r == nil {
-		r = &ClusterDuckStatus{}
+		r = &DuckStatus{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *ClusterDuckStatusDie) DieFeedJSON(j []byte) *ClusterDuckStatusDie {
-	r := ClusterDuckStatus{}
+func (d *DuckStatusDie) DieFeedJSON(j []byte) *DuckStatusDie {
+	r := DuckStatus{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -324,8 +338,8 @@ func (d *ClusterDuckStatusDie) DieFeedJSON(j []byte) *ClusterDuckStatusDie {
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *ClusterDuckStatusDie) DieFeedYAML(y []byte) *ClusterDuckStatusDie {
-	r := ClusterDuckStatus{}
+func (d *DuckStatusDie) DieFeedYAML(y []byte) *DuckStatusDie {
+	r := DuckStatus{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -333,7 +347,7 @@ func (d *ClusterDuckStatusDie) DieFeedYAML(y []byte) *ClusterDuckStatusDie {
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *ClusterDuckStatusDie) DieFeedYAMLFile(name string) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieFeedYAMLFile(name string) *DuckStatusDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -342,7 +356,7 @@ func (d *ClusterDuckStatusDie) DieFeedYAMLFile(name string) *ClusterDuckStatusDi
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckStatusDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -351,7 +365,7 @@ func (d *ClusterDuckStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *Cl
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *ClusterDuckStatusDie) DieRelease() ClusterDuckStatus {
+func (d *DuckStatusDie) DieRelease() DuckStatus {
 	if d.mutable {
 		return d.r
 	}
@@ -359,13 +373,13 @@ func (d *ClusterDuckStatusDie) DieRelease() ClusterDuckStatus {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *ClusterDuckStatusDie) DieReleasePtr() *ClusterDuckStatus {
+func (d *DuckStatusDie) DieReleasePtr() *DuckStatus {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *ClusterDuckStatusDie) DieReleaseJSON() []byte {
+func (d *DuckStatusDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -375,7 +389,7 @@ func (d *ClusterDuckStatusDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *ClusterDuckStatusDie) DieReleaseYAML() []byte {
+func (d *DuckStatusDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -385,7 +399,7 @@ func (d *ClusterDuckStatusDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *DuckStatusDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -395,7 +409,7 @@ func (d *ClusterDuckStatusDie) DieReleaseRawExtension() runtime.RawExtension {
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *ClusterDuckStatusDie) DieStamp(fn func(r *ClusterDuckStatus)) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieStamp(fn func(r *DuckStatus)) *DuckStatusDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -404,8 +418,8 @@ func (d *ClusterDuckStatusDie) DieStamp(fn func(r *ClusterDuckStatus)) *ClusterD
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *ClusterDuckStatusDie) DieStampAt(jp string, fn interface{}) *ClusterDuckStatusDie {
-	return d.DieStamp(func(r *ClusterDuckStatus) {
+func (d *DuckStatusDie) DieStampAt(jp string, fn interface{}) *DuckStatusDie {
+	return d.DieStamp(func(r *DuckStatus) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -440,8 +454,8 @@ func (d *ClusterDuckStatusDie) DieStampAt(jp string, fn interface{}) *ClusterDuc
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ClusterDuckStatusDie) DieWith(fns ...func(d *ClusterDuckStatusDie)) *ClusterDuckStatusDie {
-	nd := ClusterDuckStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *DuckStatusDie) DieWith(fns ...func(d *DuckStatusDie)) *DuckStatusDie {
+	nd := DuckStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -451,9 +465,9 @@ func (d *ClusterDuckStatusDie) DieWith(fns ...func(d *ClusterDuckStatusDie)) *Cl
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *ClusterDuckStatusDie) DeepCopy() *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DeepCopy() *DuckStatusDie {
 	r := *d.r.DeepCopy()
-	return &ClusterDuckStatusDie{
+	return &DuckStatusDie{
 		mutable: d.mutable,
 		r:       r,
 		seal:    d.seal,
@@ -461,12 +475,12 @@ func (d *ClusterDuckStatusDie) DeepCopy() *ClusterDuckStatusDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *ClusterDuckStatusDie) DieSeal() *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieSeal() *DuckStatusDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *ClusterDuckStatusDie) DieSealFeed(r ClusterDuckStatus) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieSealFeed(r DuckStatus) *DuckStatusDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -475,51 +489,51 @@ func (d *ClusterDuckStatusDie) DieSealFeed(r ClusterDuckStatus) *ClusterDuckStat
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckStatusDie) DieSealFeedPtr(r *ClusterDuckStatus) *ClusterDuckStatusDie {
+func (d *DuckStatusDie) DieSealFeedPtr(r *DuckStatus) *DuckStatusDie {
 	if r == nil {
-		r = &ClusterDuckStatus{}
+		r = &DuckStatus{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *ClusterDuckStatusDie) DieSealRelease() ClusterDuckStatus {
+func (d *DuckStatusDie) DieSealRelease() DuckStatus {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *ClusterDuckStatusDie) DieSealReleasePtr() *ClusterDuckStatus {
+func (d *DuckStatusDie) DieSealReleasePtr() *DuckStatus {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *ClusterDuckStatusDie) DieDiff(opts ...cmp.Option) string {
+func (d *DuckStatusDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *ClusterDuckStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *DuckStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-func (d *ClusterDuckStatusDie) Status(v apis.Status) *ClusterDuckStatusDie {
-	return d.DieStamp(func(r *ClusterDuckStatus) {
+func (d *DuckStatusDie) Status(v apis.Status) *DuckStatusDie {
+	return d.DieStamp(func(r *DuckStatus) {
 		r.Status = v
 	})
 }
 
-var ClusterDuckBlank = (&ClusterDuckDie{}).DieFeed(ClusterDuck{})
+var DuckBlank = (&DuckDie{}).DieFeed(Duck{})
 
-type ClusterDuckDie struct {
+type DuckDie struct {
 	metav1.FrozenObjectMeta
 	mutable bool
-	r       ClusterDuck
-	seal    ClusterDuck
+	r       Duck
+	seal    Duck
 }
 
 // DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
-func (d *ClusterDuckDie) DieImmutable(immutable bool) *ClusterDuckDie {
+func (d *DuckDie) DieImmutable(immutable bool) *DuckDie {
 	if d.mutable == !immutable {
 		return d
 	}
@@ -529,13 +543,13 @@ func (d *ClusterDuckDie) DieImmutable(immutable bool) *ClusterDuckDie {
 }
 
 // DieFeed returns a new die with the provided resource.
-func (d *ClusterDuckDie) DieFeed(r ClusterDuck) *ClusterDuckDie {
+func (d *DuckDie) DieFeed(r Duck) *DuckDie {
 	if d.mutable {
 		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
 		d.r = r
 		return d
 	}
-	return &ClusterDuckDie{
+	return &DuckDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
@@ -544,16 +558,16 @@ func (d *ClusterDuckDie) DieFeed(r ClusterDuck) *ClusterDuckDie {
 }
 
 // DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckDie) DieFeedPtr(r *ClusterDuck) *ClusterDuckDie {
+func (d *DuckDie) DieFeedPtr(r *Duck) *DuckDie {
 	if r == nil {
-		r = &ClusterDuck{}
+		r = &Duck{}
 	}
 	return d.DieFeed(*r)
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
-func (d *ClusterDuckDie) DieFeedJSON(j []byte) *ClusterDuckDie {
-	r := ClusterDuck{}
+func (d *DuckDie) DieFeedJSON(j []byte) *DuckDie {
+	r := Duck{}
 	if err := json.Unmarshal(j, &r); err != nil {
 		panic(err)
 	}
@@ -561,8 +575,8 @@ func (d *ClusterDuckDie) DieFeedJSON(j []byte) *ClusterDuckDie {
 }
 
 // DieFeedYAML returns a new die with the provided YAML. Panics on error.
-func (d *ClusterDuckDie) DieFeedYAML(y []byte) *ClusterDuckDie {
-	r := ClusterDuck{}
+func (d *DuckDie) DieFeedYAML(y []byte) *DuckDie {
+	r := Duck{}
 	if err := yaml.Unmarshal(y, &r); err != nil {
 		panic(err)
 	}
@@ -570,7 +584,7 @@ func (d *ClusterDuckDie) DieFeedYAML(y []byte) *ClusterDuckDie {
 }
 
 // DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
-func (d *ClusterDuckDie) DieFeedYAMLFile(name string) *ClusterDuckDie {
+func (d *DuckDie) DieFeedYAMLFile(name string) *DuckDie {
 	y, err := osx.ReadFile(name)
 	if err != nil {
 		panic(err)
@@ -579,7 +593,7 @@ func (d *ClusterDuckDie) DieFeedYAMLFile(name string) *ClusterDuckDie {
 }
 
 // DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterDuckDie {
+func (d *DuckDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckDie {
 	j, err := json.Marshal(raw)
 	if err != nil {
 		panic(err)
@@ -588,7 +602,7 @@ func (d *ClusterDuckDie) DieFeedRawExtension(raw runtime.RawExtension) *ClusterD
 }
 
 // DieRelease returns the resource managed by the die.
-func (d *ClusterDuckDie) DieRelease() ClusterDuck {
+func (d *DuckDie) DieRelease() Duck {
 	if d.mutable {
 		return d.r
 	}
@@ -596,13 +610,13 @@ func (d *ClusterDuckDie) DieRelease() ClusterDuck {
 }
 
 // DieReleasePtr returns a pointer to the resource managed by the die.
-func (d *ClusterDuckDie) DieReleasePtr() *ClusterDuck {
+func (d *DuckDie) DieReleasePtr() *Duck {
 	r := d.DieRelease()
 	return &r
 }
 
 // DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
-func (d *ClusterDuckDie) DieReleaseUnstructured() *unstructured.Unstructured {
+func (d *DuckDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	r := d.DieReleasePtr()
 	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
 	if err != nil {
@@ -614,7 +628,7 @@ func (d *ClusterDuckDie) DieReleaseUnstructured() *unstructured.Unstructured {
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
-func (d *ClusterDuckDie) DieReleaseJSON() []byte {
+func (d *DuckDie) DieReleaseJSON() []byte {
 	r := d.DieReleasePtr()
 	j, err := json.Marshal(r)
 	if err != nil {
@@ -624,7 +638,7 @@ func (d *ClusterDuckDie) DieReleaseJSON() []byte {
 }
 
 // DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
-func (d *ClusterDuckDie) DieReleaseYAML() []byte {
+func (d *DuckDie) DieReleaseYAML() []byte {
 	r := d.DieReleasePtr()
 	y, err := yaml.Marshal(r)
 	if err != nil {
@@ -634,7 +648,7 @@ func (d *ClusterDuckDie) DieReleaseYAML() []byte {
 }
 
 // DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
-func (d *ClusterDuckDie) DieReleaseRawExtension() runtime.RawExtension {
+func (d *DuckDie) DieReleaseRawExtension() runtime.RawExtension {
 	j := d.DieReleaseJSON()
 	raw := runtime.RawExtension{}
 	if err := json.Unmarshal(j, &raw); err != nil {
@@ -644,7 +658,7 @@ func (d *ClusterDuckDie) DieReleaseRawExtension() runtime.RawExtension {
 }
 
 // DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
-func (d *ClusterDuckDie) DieStamp(fn func(r *ClusterDuck)) *ClusterDuckDie {
+func (d *DuckDie) DieStamp(fn func(r *Duck)) *DuckDie {
 	r := d.DieRelease()
 	fn(&r)
 	return d.DieFeed(r)
@@ -653,8 +667,8 @@ func (d *ClusterDuckDie) DieStamp(fn func(r *ClusterDuck)) *ClusterDuckDie {
 // Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
 //
 // Future iterations will improve type coercion from the resource to the callback argument.
-func (d *ClusterDuckDie) DieStampAt(jp string, fn interface{}) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) DieStampAt(jp string, fn interface{}) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
 			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
 		}
@@ -689,8 +703,8 @@ func (d *ClusterDuckDie) DieStampAt(jp string, fn interface{}) *ClusterDuckDie {
 }
 
 // DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
-func (d *ClusterDuckDie) DieWith(fns ...func(d *ClusterDuckDie)) *ClusterDuckDie {
-	nd := ClusterDuckBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+func (d *DuckDie) DieWith(fns ...func(d *DuckDie)) *DuckDie {
+	nd := DuckBlank.DieFeed(d.DieRelease()).DieImmutable(false)
 	for _, fn := range fns {
 		if fn != nil {
 			fn(nd)
@@ -700,9 +714,9 @@ func (d *ClusterDuckDie) DieWith(fns ...func(d *ClusterDuckDie)) *ClusterDuckDie
 }
 
 // DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
-func (d *ClusterDuckDie) DeepCopy() *ClusterDuckDie {
+func (d *DuckDie) DeepCopy() *DuckDie {
 	r := *d.r.DeepCopy()
-	return &ClusterDuckDie{
+	return &DuckDie{
 		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
 		mutable:          d.mutable,
 		r:                r,
@@ -711,12 +725,12 @@ func (d *ClusterDuckDie) DeepCopy() *ClusterDuckDie {
 }
 
 // DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
-func (d *ClusterDuckDie) DieSeal() *ClusterDuckDie {
+func (d *DuckDie) DieSeal() *DuckDie {
 	return d.DieSealFeed(d.r)
 }
 
 // DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
-func (d *ClusterDuckDie) DieSealFeed(r ClusterDuck) *ClusterDuckDie {
+func (d *DuckDie) DieSealFeed(r Duck) *DuckDie {
 	if !d.mutable {
 		d = d.DeepCopy()
 	}
@@ -725,91 +739,83 @@ func (d *ClusterDuckDie) DieSealFeed(r ClusterDuck) *ClusterDuckDie {
 }
 
 // DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
-func (d *ClusterDuckDie) DieSealFeedPtr(r *ClusterDuck) *ClusterDuckDie {
+func (d *DuckDie) DieSealFeedPtr(r *Duck) *DuckDie {
 	if r == nil {
-		r = &ClusterDuck{}
+		r = &Duck{}
 	}
 	return d.DieSealFeed(*r)
 }
 
 // DieSealRelease returns the sealed resource managed by the die.
-func (d *ClusterDuckDie) DieSealRelease() ClusterDuck {
+func (d *DuckDie) DieSealRelease() Duck {
 	return *d.seal.DeepCopy()
 }
 
 // DieSealReleasePtr returns the sealed resource pointer managed by the die.
-func (d *ClusterDuckDie) DieSealReleasePtr() *ClusterDuck {
+func (d *DuckDie) DieSealReleasePtr() *Duck {
 	r := d.DieSealRelease()
 	return &r
 }
 
 // DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
-func (d *ClusterDuckDie) DieDiff(opts ...cmp.Option) string {
+func (d *DuckDie) DieDiff(opts ...cmp.Option) string {
 	return cmp.Diff(d.seal, d.r, opts...)
 }
 
 // DiePatch generates a patch between the current value of the die and the sealed value.
-func (d *ClusterDuckDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+func (d *DuckDie) DiePatch(patchType types.PatchType) ([]byte, error) {
 	return patch.Create(d.seal, d.r, patchType)
 }
 
-var _ runtime.Object = (*ClusterDuckDie)(nil)
+var _ runtime.Object = (*DuckDie)(nil)
 
-func (d *ClusterDuckDie) DeepCopyObject() runtime.Object {
+func (d *DuckDie) DeepCopyObject() runtime.Object {
 	return d.r.DeepCopy()
 }
 
-func (d *ClusterDuckDie) GetObjectKind() schema.ObjectKind {
+func (d *DuckDie) GetObjectKind() schema.ObjectKind {
 	r := d.DieRelease()
 	return r.GetObjectKind()
 }
 
-func (d *ClusterDuckDie) MarshalJSON() ([]byte, error) {
+func (d *DuckDie) MarshalJSON() ([]byte, error) {
 	return json.Marshal(d.r)
 }
 
-func (d *ClusterDuckDie) UnmarshalJSON(b []byte) error {
+func (d *DuckDie) UnmarshalJSON(b []byte) error {
 	if !d.mutable {
 		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
 	}
-	resource := &ClusterDuck{}
+	resource := &Duck{}
 	err := json.Unmarshal(b, resource)
 	*d = *d.DieFeed(*resource)
 	return err
 }
 
-// DieDefaultTypeMetadata sets the APIVersion and Kind to "ducks.reconciler.io/v1" and "ClusterDuck" respectively.
-func (d *ClusterDuckDie) DieDefaultTypeMetadata() *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
-		r.APIVersion = "ducks.reconciler.io/v1"
-		r.Kind = "ClusterDuck"
-	})
-}
-
 // APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-func (d *ClusterDuckDie) APIVersion(v string) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) APIVersion(v string) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		r.APIVersion = v
 	})
 }
 
 // Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-func (d *ClusterDuckDie) Kind(v string) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) Kind(v string) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		r.Kind = v
 	})
 }
 
 // TypeMetadata standard object's type metadata.
-func (d *ClusterDuckDie) TypeMetadata(v apismetav1.TypeMeta) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) TypeMetadata(v apismetav1.TypeMeta) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		r.TypeMeta = v
 	})
 }
 
 // TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
-func (d *ClusterDuckDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
 		fn(d)
 		r.TypeMeta = d.DieRelease()
@@ -817,15 +823,15 @@ func (d *ClusterDuckDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *Cluste
 }
 
 // Metadata standard object's metadata.
-func (d *ClusterDuckDie) Metadata(v apismetav1.ObjectMeta) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) Metadata(v apismetav1.ObjectMeta) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		r.ObjectMeta = v
 	})
 }
 
 // MetadataDie stamps the resource's ObjectMeta field with a mutable die.
-func (d *ClusterDuckDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
 		fn(d)
 		r.ObjectMeta = d.DieRelease()
@@ -833,31 +839,889 @@ func (d *ClusterDuckDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *ClusterD
 }
 
 // SpecDie stamps the resource's spec field with a mutable die.
-func (d *ClusterDuckDie) SpecDie(fn func(d *ClusterDuckSpecDie)) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
-		d := ClusterDuckSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+func (d *DuckDie) SpecDie(fn func(d *DuckSpecDie)) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
+		d := DuckSpecBlank.DieImmutable(false).DieFeed(r.Spec)
 		fn(d)
 		r.Spec = d.DieRelease()
 	})
 }
 
 // StatusDie stamps the resource's status field with a mutable die.
-func (d *ClusterDuckDie) StatusDie(fn func(d *ClusterDuckStatusDie)) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
-		d := ClusterDuckStatusBlank.DieImmutable(false).DieFeed(r.Status)
+func (d *DuckDie) StatusDie(fn func(d *DuckStatusDie)) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
+		d := DuckStatusBlank.DieImmutable(false).DieFeed(r.Status)
 		fn(d)
 		r.Status = d.DieRelease()
 	})
 }
 
-func (d *ClusterDuckDie) Spec(v ClusterDuckSpec) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) Spec(v DuckSpec) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
 		r.Spec = v
 	})
 }
 
-func (d *ClusterDuckDie) Status(v ClusterDuckStatus) *ClusterDuckDie {
-	return d.DieStamp(func(r *ClusterDuck) {
+func (d *DuckDie) Status(v DuckStatus) *DuckDie {
+	return d.DieStamp(func(r *Duck) {
+		r.Status = v
+	})
+}
+
+var DuckTypeSpecBlank = (&DuckTypeSpecDie{}).DieFeed(DuckTypeSpec{})
+
+type DuckTypeSpecDie struct {
+	mutable bool
+	r       DuckTypeSpec
+	seal    DuckTypeSpec
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DuckTypeSpecDie) DieImmutable(immutable bool) *DuckTypeSpecDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *DuckTypeSpecDie) DieFeed(r DuckTypeSpec) *DuckTypeSpecDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &DuckTypeSpecDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeSpecDie) DieFeedPtr(r *DuckTypeSpec) *DuckTypeSpecDie {
+	if r == nil {
+		r = &DuckTypeSpec{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *DuckTypeSpecDie) DieFeedJSON(j []byte) *DuckTypeSpecDie {
+	r := DuckTypeSpec{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *DuckTypeSpecDie) DieFeedYAML(y []byte) *DuckTypeSpecDie {
+	r := DuckTypeSpec{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *DuckTypeSpecDie) DieFeedYAMLFile(name string) *DuckTypeSpecDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeSpecDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckTypeSpecDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *DuckTypeSpecDie) DieRelease() DuckTypeSpec {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DuckTypeSpecDie) DieReleasePtr() *DuckTypeSpec {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *DuckTypeSpecDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *DuckTypeSpecDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeSpecDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DuckTypeSpecDie) DieStamp(fn func(r *DuckTypeSpec)) *DuckTypeSpecDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *DuckTypeSpecDie) DieStampAt(jp string, fn interface{}) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DuckTypeSpecDie) DieWith(fns ...func(d *DuckTypeSpecDie)) *DuckTypeSpecDie {
+	nd := DuckTypeSpecBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DuckTypeSpecDie) DeepCopy() *DuckTypeSpecDie {
+	r := *d.r.DeepCopy()
+	return &DuckTypeSpecDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DuckTypeSpecDie) DieSeal() *DuckTypeSpecDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DuckTypeSpecDie) DieSealFeed(r DuckTypeSpec) *DuckTypeSpecDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeSpecDie) DieSealFeedPtr(r *DuckTypeSpec) *DuckTypeSpecDie {
+	if r == nil {
+		r = &DuckTypeSpec{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DuckTypeSpecDie) DieSealRelease() DuckTypeSpec {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DuckTypeSpecDie) DieSealReleasePtr() *DuckTypeSpec {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DuckTypeSpecDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DuckTypeSpecDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+// Group is the API group of the defined custom resource.
+//
+// Must match the name of the DuckType (in the form `<plural>.<group>`).
+func (d *DuckTypeSpecDie) Group(v string) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		r.Group = v
+	})
+}
+
+// Plural is the plural name of the resource to serve.
+//
+// Must match the name of the DuckType (in the form `<plural>.<group>`).
+//
+// Must be all lowercase.
+func (d *DuckTypeSpecDie) Plural(v string) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		r.Plural = v
+	})
+}
+
+// Singular is the singular name of the resource. It must be all lowercase. Defaults to lowercased `kind`.
+func (d *DuckTypeSpecDie) Singular(v string) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		r.Singular = v
+	})
+}
+
+// Kind is the serialized kind of the resource. It is normally CamelCase and singular.
+//
+// Custom resource instances will use this value as the `kind` attribute in API calls.
+func (d *DuckTypeSpecDie) Kind(v string) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		r.Kind = v
+	})
+}
+
+// ListKind is the serialized kind of the list for this resource. Defaults to "<kind>List".
+func (d *DuckTypeSpecDie) ListKind(v string) *DuckTypeSpecDie {
+	return d.DieStamp(func(r *DuckTypeSpec) {
+		r.ListKind = v
+	})
+}
+
+var DuckTypeStatusBlank = (&DuckTypeStatusDie{}).DieFeed(DuckTypeStatus{})
+
+type DuckTypeStatusDie struct {
+	mutable bool
+	r       DuckTypeStatus
+	seal    DuckTypeStatus
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DuckTypeStatusDie) DieImmutable(immutable bool) *DuckTypeStatusDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *DuckTypeStatusDie) DieFeed(r DuckTypeStatus) *DuckTypeStatusDie {
+	if d.mutable {
+		d.r = r
+		return d
+	}
+	return &DuckTypeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeStatusDie) DieFeedPtr(r *DuckTypeStatus) *DuckTypeStatusDie {
+	if r == nil {
+		r = &DuckTypeStatus{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *DuckTypeStatusDie) DieFeedJSON(j []byte) *DuckTypeStatusDie {
+	r := DuckTypeStatus{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *DuckTypeStatusDie) DieFeedYAML(y []byte) *DuckTypeStatusDie {
+	r := DuckTypeStatus{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *DuckTypeStatusDie) DieFeedYAMLFile(name string) *DuckTypeStatusDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeStatusDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckTypeStatusDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *DuckTypeStatusDie) DieRelease() DuckTypeStatus {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DuckTypeStatusDie) DieReleasePtr() *DuckTypeStatus {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *DuckTypeStatusDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *DuckTypeStatusDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeStatusDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DuckTypeStatusDie) DieStamp(fn func(r *DuckTypeStatus)) *DuckTypeStatusDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *DuckTypeStatusDie) DieStampAt(jp string, fn interface{}) *DuckTypeStatusDie {
+	return d.DieStamp(func(r *DuckTypeStatus) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DuckTypeStatusDie) DieWith(fns ...func(d *DuckTypeStatusDie)) *DuckTypeStatusDie {
+	nd := DuckTypeStatusBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DuckTypeStatusDie) DeepCopy() *DuckTypeStatusDie {
+	r := *d.r.DeepCopy()
+	return &DuckTypeStatusDie{
+		mutable: d.mutable,
+		r:       r,
+		seal:    d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DuckTypeStatusDie) DieSeal() *DuckTypeStatusDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DuckTypeStatusDie) DieSealFeed(r DuckTypeStatus) *DuckTypeStatusDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeStatusDie) DieSealFeedPtr(r *DuckTypeStatus) *DuckTypeStatusDie {
+	if r == nil {
+		r = &DuckTypeStatus{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DuckTypeStatusDie) DieSealRelease() DuckTypeStatus {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DuckTypeStatusDie) DieSealReleasePtr() *DuckTypeStatus {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DuckTypeStatusDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DuckTypeStatusDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+func (d *DuckTypeStatusDie) Status(v apis.Status) *DuckTypeStatusDie {
+	return d.DieStamp(func(r *DuckTypeStatus) {
+		r.Status = v
+	})
+}
+
+var DuckTypeBlank = (&DuckTypeDie{}).DieFeed(DuckType{})
+
+type DuckTypeDie struct {
+	metav1.FrozenObjectMeta
+	mutable bool
+	r       DuckType
+	seal    DuckType
+}
+
+// DieImmutable returns a new die for the current die's state that is either mutable (`false`) or immutable (`true`).
+func (d *DuckTypeDie) DieImmutable(immutable bool) *DuckTypeDie {
+	if d.mutable == !immutable {
+		return d
+	}
+	d = d.DeepCopy()
+	d.mutable = !immutable
+	return d
+}
+
+// DieFeed returns a new die with the provided resource.
+func (d *DuckTypeDie) DieFeed(r DuckType) *DuckTypeDie {
+	if d.mutable {
+		d.FrozenObjectMeta = metav1.FreezeObjectMeta(r.ObjectMeta)
+		d.r = r
+		return d
+	}
+	return &DuckTypeDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieFeedPtr returns a new die with the provided resource pointer. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeDie) DieFeedPtr(r *DuckType) *DuckTypeDie {
+	if r == nil {
+		r = &DuckType{}
+	}
+	return d.DieFeed(*r)
+}
+
+// DieFeedJSON returns a new die with the provided JSON. Panics on error.
+func (d *DuckTypeDie) DieFeedJSON(j []byte) *DuckTypeDie {
+	r := DuckType{}
+	if err := json.Unmarshal(j, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAML returns a new die with the provided YAML. Panics on error.
+func (d *DuckTypeDie) DieFeedYAML(y []byte) *DuckTypeDie {
+	r := DuckType{}
+	if err := yaml.Unmarshal(y, &r); err != nil {
+		panic(err)
+	}
+	return d.DieFeed(r)
+}
+
+// DieFeedYAMLFile returns a new die loading YAML from a file path. Panics on error.
+func (d *DuckTypeDie) DieFeedYAMLFile(name string) *DuckTypeDie {
+	y, err := osx.ReadFile(name)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedYAML(y)
+}
+
+// DieFeedRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeDie) DieFeedRawExtension(raw runtime.RawExtension) *DuckTypeDie {
+	j, err := json.Marshal(raw)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(j)
+}
+
+// DieRelease returns the resource managed by the die.
+func (d *DuckTypeDie) DieRelease() DuckType {
+	if d.mutable {
+		return d.r
+	}
+	return *d.r.DeepCopy()
+}
+
+// DieReleasePtr returns a pointer to the resource managed by the die.
+func (d *DuckTypeDie) DieReleasePtr() *DuckType {
+	r := d.DieRelease()
+	return &r
+}
+
+// DieReleaseUnstructured returns the resource managed by the die as an unstructured object. Panics on error.
+func (d *DuckTypeDie) DieReleaseUnstructured() *unstructured.Unstructured {
+	r := d.DieReleasePtr()
+	u, err := runtime.DefaultUnstructuredConverter.ToUnstructured(r)
+	if err != nil {
+		panic(err)
+	}
+	return &unstructured.Unstructured{
+		Object: u,
+	}
+}
+
+// DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
+func (d *DuckTypeDie) DieReleaseJSON() []byte {
+	r := d.DieReleasePtr()
+	j, err := json.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return j
+}
+
+// DieReleaseYAML returns the resource managed by the die as YAML. Panics on error.
+func (d *DuckTypeDie) DieReleaseYAML() []byte {
+	r := d.DieReleasePtr()
+	y, err := yaml.Marshal(r)
+	if err != nil {
+		panic(err)
+	}
+	return y
+}
+
+// DieReleaseRawExtension returns the resource managed by the die as an raw extension. Panics on error.
+func (d *DuckTypeDie) DieReleaseRawExtension() runtime.RawExtension {
+	j := d.DieReleaseJSON()
+	raw := runtime.RawExtension{}
+	if err := json.Unmarshal(j, &raw); err != nil {
+		panic(err)
+	}
+	return raw
+}
+
+// DieStamp returns a new die with the resource passed to the callback function. The resource is mutable.
+func (d *DuckTypeDie) DieStamp(fn func(r *DuckType)) *DuckTypeDie {
+	r := d.DieRelease()
+	fn(&r)
+	return d.DieFeed(r)
+}
+
+// Experimental: DieStampAt uses a JSON path (http://goessner.net/articles/JsonPath/) expression to stamp portions of the resource. The callback is invoked with each JSON path match. Panics if the callback function does not accept a single argument of the same type or a pointer to that type as found on the resource at the target location.
+//
+// Future iterations will improve type coercion from the resource to the callback argument.
+func (d *DuckTypeDie) DieStampAt(jp string, fn interface{}) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		if ni := reflectx.ValueOf(fn).Type().NumIn(); ni != 1 {
+			panic(fmtx.Errorf("callback function must have 1 input parameters, found %d", ni))
+		}
+		if no := reflectx.ValueOf(fn).Type().NumOut(); no != 0 {
+			panic(fmtx.Errorf("callback function must have 0 output parameters, found %d", no))
+		}
+
+		cp := jsonpath.New("")
+		if err := cp.Parse(fmtx.Sprintf("{%s}", jp)); err != nil {
+			panic(err)
+		}
+		cr, err := cp.FindResults(r)
+		if err != nil {
+			// errors are expected if a path is not found
+			return
+		}
+		for _, cv := range cr[0] {
+			arg0t := reflectx.ValueOf(fn).Type().In(0)
+
+			var args []reflectx.Value
+			if cv.Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv}
+			} else if cv.CanAddr() && cv.Addr().Type().AssignableTo(arg0t) {
+				args = []reflectx.Value{cv.Addr()}
+			} else {
+				panic(fmtx.Errorf("callback function must accept value of type %q, found type %q", cv.Type(), arg0t))
+			}
+
+			reflectx.ValueOf(fn).Call(args)
+		}
+	})
+}
+
+// DieWith returns a new die after passing the current die to the callback function. The passed die is mutable.
+func (d *DuckTypeDie) DieWith(fns ...func(d *DuckTypeDie)) *DuckTypeDie {
+	nd := DuckTypeBlank.DieFeed(d.DieRelease()).DieImmutable(false)
+	for _, fn := range fns {
+		if fn != nil {
+			fn(nd)
+		}
+	}
+	return d.DieFeed(nd.DieRelease())
+}
+
+// DeepCopy returns a new die with equivalent state. Useful for snapshotting a mutable die.
+func (d *DuckTypeDie) DeepCopy() *DuckTypeDie {
+	r := *d.r.DeepCopy()
+	return &DuckTypeDie{
+		FrozenObjectMeta: metav1.FreezeObjectMeta(r.ObjectMeta),
+		mutable:          d.mutable,
+		r:                r,
+		seal:             d.seal,
+	}
+}
+
+// DieSeal returns a new die for the current die's state that is sealed for comparison in future diff and patch operations.
+func (d *DuckTypeDie) DieSeal() *DuckTypeDie {
+	return d.DieSealFeed(d.r)
+}
+
+// DieSealFeed returns a new die for the current die's state that uses a specific resource for comparison in future diff and patch operations.
+func (d *DuckTypeDie) DieSealFeed(r DuckType) *DuckTypeDie {
+	if !d.mutable {
+		d = d.DeepCopy()
+	}
+	d.seal = *r.DeepCopy()
+	return d
+}
+
+// DieSealFeedPtr returns a new die for the current die's state that uses a specific resource pointer for comparison in future diff and patch operations. If the resource is nil, the empty value is used instead.
+func (d *DuckTypeDie) DieSealFeedPtr(r *DuckType) *DuckTypeDie {
+	if r == nil {
+		r = &DuckType{}
+	}
+	return d.DieSealFeed(*r)
+}
+
+// DieSealRelease returns the sealed resource managed by the die.
+func (d *DuckTypeDie) DieSealRelease() DuckType {
+	return *d.seal.DeepCopy()
+}
+
+// DieSealReleasePtr returns the sealed resource pointer managed by the die.
+func (d *DuckTypeDie) DieSealReleasePtr() *DuckType {
+	r := d.DieSealRelease()
+	return &r
+}
+
+// DieDiff uses cmp.Diff to compare the current value of the die with the sealed value.
+func (d *DuckTypeDie) DieDiff(opts ...cmp.Option) string {
+	return cmp.Diff(d.seal, d.r, opts...)
+}
+
+// DiePatch generates a patch between the current value of the die and the sealed value.
+func (d *DuckTypeDie) DiePatch(patchType types.PatchType) ([]byte, error) {
+	return patch.Create(d.seal, d.r, patchType)
+}
+
+var _ runtime.Object = (*DuckTypeDie)(nil)
+
+func (d *DuckTypeDie) DeepCopyObject() runtime.Object {
+	return d.r.DeepCopy()
+}
+
+func (d *DuckTypeDie) GetObjectKind() schema.ObjectKind {
+	r := d.DieRelease()
+	return r.GetObjectKind()
+}
+
+func (d *DuckTypeDie) MarshalJSON() ([]byte, error) {
+	return json.Marshal(d.r)
+}
+
+func (d *DuckTypeDie) UnmarshalJSON(b []byte) error {
+	if !d.mutable {
+		return fmtx.Errorf("cannot unmarshal into immutable dies, create a mutable version first")
+	}
+	resource := &DuckType{}
+	err := json.Unmarshal(b, resource)
+	*d = *d.DieFeed(*resource)
+	return err
+}
+
+// DieDefaultTypeMetadata sets the APIVersion and Kind to "duck.reconciler.io/v1" and "DuckType" respectively.
+func (d *DuckTypeDie) DieDefaultTypeMetadata() *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.APIVersion = "duck.reconciler.io/v1"
+		r.Kind = "DuckType"
+	})
+}
+
+// APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+func (d *DuckTypeDie) APIVersion(v string) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.APIVersion = v
+	})
+}
+
+// Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+func (d *DuckTypeDie) Kind(v string) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.Kind = v
+	})
+}
+
+// TypeMetadata standard object's type metadata.
+func (d *DuckTypeDie) TypeMetadata(v apismetav1.TypeMeta) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.TypeMeta = v
+	})
+}
+
+// TypeMetadataDie stamps the resource's TypeMeta field with a mutable die.
+func (d *DuckTypeDie) TypeMetadataDie(fn func(d *metav1.TypeMetaDie)) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		d := metav1.TypeMetaBlank.DieImmutable(false).DieFeed(r.TypeMeta)
+		fn(d)
+		r.TypeMeta = d.DieRelease()
+	})
+}
+
+// Metadata standard object's metadata.
+func (d *DuckTypeDie) Metadata(v apismetav1.ObjectMeta) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.ObjectMeta = v
+	})
+}
+
+// MetadataDie stamps the resource's ObjectMeta field with a mutable die.
+func (d *DuckTypeDie) MetadataDie(fn func(d *metav1.ObjectMetaDie)) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		d := metav1.ObjectMetaBlank.DieImmutable(false).DieFeed(r.ObjectMeta)
+		fn(d)
+		r.ObjectMeta = d.DieRelease()
+	})
+}
+
+// SpecDie stamps the resource's spec field with a mutable die.
+func (d *DuckTypeDie) SpecDie(fn func(d *DuckTypeSpecDie)) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		d := DuckTypeSpecBlank.DieImmutable(false).DieFeed(r.Spec)
+		fn(d)
+		r.Spec = d.DieRelease()
+	})
+}
+
+// StatusDie stamps the resource's status field with a mutable die.
+func (d *DuckTypeDie) StatusDie(fn func(d *DuckTypeStatusDie)) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		d := DuckTypeStatusBlank.DieImmutable(false).DieFeed(r.Status)
+		fn(d)
+		r.Status = d.DieRelease()
+	})
+}
+
+func (d *DuckTypeDie) Spec(v DuckTypeSpec) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
+		r.Spec = v
+	})
+}
+
+func (d *DuckTypeDie) Status(v DuckTypeStatus) *DuckTypeDie {
+	return d.DieStamp(func(r *DuckType) {
 		r.Status = v
 	})
 }

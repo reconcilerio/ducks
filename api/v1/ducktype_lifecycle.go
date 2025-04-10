@@ -23,33 +23,37 @@ import (
 )
 
 const (
-	ClusterDuckConditionReady = apis.ConditionReady
+	DuckTypeConditionReady                               = apis.ConditionReady
+	DuckTypeConditionRBAC                                = "RBAC"
+	DuckTypeConditionCustomResourceDefinitionEstablished = "CustomResourceDefinitionEstablished"
 )
 
-func (r *ClusterDuck) GetConditionsAccessor() apis.ConditionsAccessor {
+func (r *DuckType) GetConditionsAccessor() apis.ConditionsAccessor {
 	return &r.Status
 }
 
-func (r *ClusterDuck) GetConditionSet() apis.ConditionSet {
+func (r *DuckType) GetConditionSet() apis.ConditionSet {
 	return r.Status.GetConditionSet()
 }
 
-func (r *ClusterDuckStatus) GetConditionSet() apis.ConditionSet {
+func (r *DuckTypeStatus) GetConditionSet() apis.ConditionSet {
 	return apis.NewLivingConditionSetWithHappyReason(
 		"Ready",
+		DuckTypeConditionRBAC,
+		DuckTypeConditionCustomResourceDefinitionEstablished,
 	)
 }
 
-func (r *ClusterDuck) GetConditionManager(ctx context.Context) apis.ConditionManager {
+func (r *DuckType) GetConditionManager(ctx context.Context) apis.ConditionManager {
 	return r.Status.GetConditionManager(ctx)
 }
 
-func (r *ClusterDuckStatus) GetConditionManager(ctx context.Context) apis.ConditionManager {
+func (r *DuckTypeStatus) GetConditionManager(ctx context.Context) apis.ConditionManager {
 	return r.GetConditionSet().ManageWithContext(ctx, r)
 }
 
-func (r *ClusterDuckStatus) InitializeConditions(ctx context.Context) {
+func (r *DuckTypeStatus) InitializeConditions(ctx context.Context) {
 	r.GetConditionManager(ctx).InitializeConditions()
 }
 
-var _ apis.ConditionsAccessor = (*ClusterDuckStatus)(nil)
+var _ apis.ConditionsAccessor = (*DuckTypeStatus)(nil)

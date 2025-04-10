@@ -5,6 +5,7 @@ GOIMPORTS ?= go run -modfile hack/goimports/go.mod golang.org/x/tools/cmd/goimpo
 KAPP ?= go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
 KO ?= go run -modfile hack/ko/go.mod github.com/google/ko
 KUSTOMIZE ?= go run -modfile hack/kustomize/go.mod sigs.k8s.io/kustomize/kustomize/v5
+STERN ?= go run -modfile hack/stern/go.mod github.com/stern/stern
 
 KAPP_APP ?= ducks-runtime
 KAPP_APP_NAMESPACE ?= default
@@ -53,6 +54,7 @@ manifests: ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefin
 generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 	$(DIEGEN) die:headerFile="hack/boilerplate.go.txt" paths="./..."
+	@$(MAKE) fmt
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -63,7 +65,7 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: test
-test: manifests generate fmt vet ## Run tests.
+test: manifests generate vet ## Run tests.
 	go test ./... -coverprofile cover.out
 
 ##@ Deployment
@@ -89,3 +91,7 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 .PHONY: kind-deploy
 kind-deploy: ## Deploy to a running local kind cluster
 	KO_DOCKER_REPO=kind.local $(MAKE) deploy
+
+.PHONY: logs
+logs: ## tail logs from the controller manager
+	$(STERN) -n reconcilerio-system -l app.kubernetes.io/name=ducks

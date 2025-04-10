@@ -1,9 +1,0 @@
-apiVersion: ducks.reconciler.io/v1
-kind: ClusterDuck
-metadata:
-  labels:
-    app.kubernetes.io/name: ducks
-    app.kubernetes.io/managed-by: kustomize
-  name: clusterduck-sample
-spec:
-  # TODO(user): Add fields here
