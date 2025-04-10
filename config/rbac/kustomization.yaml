@@ -22,7 +22,7 @@ resources:
 # default, aiding admins in cluster management. Those roles are
 # not used by the {{ .ProjectName }} itself. You can comment the following lines
 # if you do not want those helpers be installed with your Project.
-- clusterduck_admin_role.yaml
-- clusterduck_editor_role.yaml
-- clusterduck_viewer_role.yaml
+- ducktype_admin_role.yaml
+- ducktype_editor_role.yaml
+- ducktype_viewer_role.yaml
 

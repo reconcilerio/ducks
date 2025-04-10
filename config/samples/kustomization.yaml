@@ -1,4 +1,4 @@
 ## Append samples of your project ##
 resources:
-- ducks.reconciler.io_v1_clusterduck.yaml
+- duck_v1_ducktype.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

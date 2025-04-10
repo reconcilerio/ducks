@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.3
-  name: clusterducks.ducks.reconciler.io
+  name: ducks.duck.reconciler.io
 spec:
-  group: ducks.reconciler.io
+  group: duck.reconciler.io
   names:
-    kind: ClusterDuck
-    listKind: ClusterDuckList
-    plural: clusterducks
-    singular: clusterduck
-  scope: Cluster
+    kind: Duck
+    listKind: DuckList
+    plural: ducks
+    singular: duck
+  scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: ClusterDuck is the Schema for the clusterducks API.
+        description: Duck is the Schema for the ducks API.
         properties:
           apiVersion:
             description: |-
@@ -37,15 +37,24 @@ spec:
           metadata:
             type: object
           spec:
-            description: ClusterDuckSpec defines the desired state of ClusterDuck.
+            description: DuckSpec defines the desired state of Duck.
             properties:
-              foo:
-                description: Foo is an example field of ClusterDuck. Edit clusterduck_types.go
-                  to remove/update
+              group:
+                description: Group to read the target Duck.
                 type: string
+              kind:
+                description: Kind to read the target Duck.
+                type: string
+              version:
+                description: Version to read the target Duck.
+                type: string
+            required:
+            - group
+            - kind
+            - version
             type: object
           status:
-            description: ClusterDuckStatus defines the observed state of ClusterDuck.
+            description: DuckStatus defines the observed state of Duck.
             properties:
               conditions:
                 description: Conditions the latest available observations of a resource's
@@ -115,5 +124,3 @@ spec:
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}

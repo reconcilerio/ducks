@@ -1,0 +1,27 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-duck-reconciler-io-v1-ducktype
+  failurePolicy: Fail
+  name: v1.ducktypes.duck.reconciler.io
+  rules:
+  - apiGroups:
+    - duck.reconciler.io
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - ducktypes
+  sideEffects: None

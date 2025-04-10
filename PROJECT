@@ -12,8 +12,11 @@ resources:
     crdVersion: v1
   controller: true
   domain: reconciler.io
-  group: ducks
-  kind: ClusterDuck
+  group: duck
+  kind: DuckType
   path: reconciler.io/ducks/api/v1
   version: v1
+  webhooks:
+    validation: true
+    webhookVersion: v1
 version: "3"
