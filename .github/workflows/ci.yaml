@@ -130,22 +130,22 @@ jobs:
         cp LICENSE "${scratch}/LICENSE"
 
         echo "##[group]Build"
-          cat hack/boilerplate.yaml.txt > "${scratch}/config/ducks-runtime.yaml"
-          ${KO} resolve --platform ${KO_PLATFORMS} -f config/ducks-runtime.yaml >> "${scratch}/config/ducks-runtime.yaml"
+          cat hack/boilerplate.yaml.txt > "${scratch}/config/reconcilerio-ducks.yaml"
+          ${KO} resolve --platform ${KO_PLATFORMS} -f config/ducks-runtime.yaml >> "${scratch}/config/reconcilerio-ducks.yaml"
 
           ${KBLD} --imgpkg-lock-output "${scratch}/.imgpkg/images.yml" \
-            -f "${scratch}/config/ducks-runtime.yaml" \
+            -f "${scratch}/config/reconcilerio-ducks.yaml" \
             > /dev/null
         echo "##[endgroup]"
 
         echo "##[group]Create bundle"
           ${IMGPKG} push -f "${scratch}" -b "${BUNDLE}"
-          ${IMGPKG} copy -b "${BUNDLE}" --to-tar ducks-runtime-bundle.tar
+          ${IMGPKG} copy -b "${BUNDLE}" --to-tar reconcilerio-ducks-bundle.tar
         echo "##[endgroup]"
     - uses: actions/upload-artifact@v4
       with:
-        name: ducks-runtime-bundle.tar
-        path: ducks-runtime-bundle.tar
+        name: reconcilerio-ducks-bundle.tar
+        path: reconcilerio-ducks-bundle.tar
         retention-days: 7
 
   acceptance:
@@ -277,14 +277,14 @@ jobs:
     - name: Download staged bundle
       uses: actions/download-artifact@v4
       with:
-        name: ducks-runtime-bundle.tar
+        name: reconcilerio-ducks-bundle.tar
     - name: Relocate bundle
       run: |
         set -o errexit
         set -o nounset
         set -o pipefail
 
-        ${IMGPKG} copy --tar ducks-runtime-bundle.tar --to-repo "${BUNDLE}"
+        ${IMGPKG} copy --tar reconcilerio-ducks-bundle.tar --to-repo "${BUNDLE}"
         mkdir -p bundle
         ${IMGPKG} pull -b "${BUNDLE}" -o bundle
     - name: Deploy
@@ -300,8 +300,8 @@ jobs:
           ${KAPP} deploy -a cert-manager -n apps --wait-timeout 5m -y \
             -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.1/cert-manager.yaml
         echo "##[endgroup]"
-        echo "##[group]Deploy ducks-runtime"
-          ${KAPP} deploy -a ducks-runtime -n apps --wait-timeout 5m -y \
+        echo "##[group]Deploy reconcilerio-ducks"
+          ${KAPP} deploy -a reconcilerio-ducks -n apps --wait-timeout 5m -y \
             -f <(${KBLD} -f bundle/.imgpkg/images.yml -f bundle/config)
         echo "##[endgroup]"
 
@@ -311,8 +311,8 @@ jobs:
         set -o nounset
         set -o pipefail
 
-        echo "##[group]Delete ducks-runtime"
-          ${KAPP} delete -a ducks-runtime -n apps --wait-timeout 5m -y
+        echo "##[group]Delete reconcilerio-ducks"
+          ${KAPP} delete -a reconcilerio-ducks -n apps --wait-timeout 5m -y
         echo "##[endgroup]"
         echo "##[group]Delete cert-manager"
           ${KAPP} delete -a cert-manager -n apps --wait-timeout 5m -y
@@ -334,9 +334,12 @@ jobs:
 
   release:
     name: Release
+    if: startsWith(github.ref, 'refs/tags/')
     needs:
     - test
-    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+      packages: write
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -346,28 +349,10 @@ jobs:
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-    - name: Draft release
-      id: create_release
-      uses: actions/create-release@v1.1.4
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ steps.get_version.outputs.VERSION }}
-        draft: true
     - name: Download staged bundle
       uses: actions/download-artifact@v4
       with:
-        name: ducks-runtime-bundle.tar
-    - name: Upload ducks-runtime-bundle.tar
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ducks-runtime-bundle.tar
-        asset_name: ducks-runtime-bundle-${{ steps.get_version.outputs.VERSION }}.tar
-        asset_content_type: application/x-tar
+        name: reconcilerio-ducks-bundle.tar
     - name: Install crane
       run: |
         cd $(mktemp -d -t crane.XXXX)
@@ -389,7 +374,7 @@ jobs:
 
         version=${{ steps.get_version.outputs.VERSION }}
 
-        ${IMGPKG} copy --tar ducks-runtime-bundle.tar --to-repo "ghcr.io/${{ github.repository }}/bundle"
+        ${IMGPKG} copy --tar reconcilerio-ducks-bundle.tar --to-repo "ghcr.io/${{ github.repository }}/bundle"
         crane tag "ghcr.io/${{ github.repository }}/bundle" "${version}"
         digest=$(crane digest "ghcr.io/${{ github.repository }}/bundle:${version}")
 
@@ -397,16 +382,25 @@ jobs:
         mkdir -p ${scratch}
         ${IMGPKG} pull -b "ghcr.io/${{ github.repository }}/bundle:${version}@${digest}" -o ${scratch}
 
-        cp hack/boilerplate.yaml.txt ducks-runtime.yaml
-        ${KBLD} -f ${scratch}/config/ducks-runtime.yaml -f ${scratch}/.imgpkg/images.yml \
-          >> ducks-runtime.yaml
+        cp hack/boilerplate.yaml.txt reconcilerio-ducks.yaml
+        ${KBLD} -f ${scratch}/config/reconcilerio-ducks.yaml -f ${scratch}/.imgpkg/images.yml \
+          >> reconcilerio-ducks.yaml
+    - name: Rename artifacts with version
+      run: |
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+    
+        version=${{ steps.get_version.outputs.VERSION }}
 
-    - name: Upload ducks-runtime.yaml
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        cp reconcilerio-ducks-bundle.tar reconcilerio-ducks-bundle-${version}.tar
+        cp reconcilerio-ducks.yaml reconcilerio-ducks-${version}.yaml
+    - name: Draft GitHub Release
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ducks-runtime.yaml
-        asset_name: ducks-runtime-${{ steps.get_version.outputs.VERSION }}.yaml
-        asset_content_type: application/x-yaml
+        draft: true
+        files: |
+          reconcilerio-ducks-bundle-${{ steps.get_version.outputs.VERSION }}.tar
+          reconcilerio-ducks-${{ steps.get_version.outputs.VERSION }}.yaml
+        fail_on_unmatched_files: true
+        token: ${{ secrets.GITHUB_TOKEN }}
