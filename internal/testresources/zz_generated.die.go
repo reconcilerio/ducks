@@ -32,7 +32,7 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
-	json "k8s.io/apimachinery/pkg/util/json"
+	"k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	v1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
