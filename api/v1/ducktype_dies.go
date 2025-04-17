@@ -21,6 +21,7 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	diemetav1 "reconciler.io/dies/apis/meta/v1"
 	rtime "reconciler.io/runtime/time"
 )
@@ -31,7 +32,7 @@ var (
 	DuckTypeConditionCustomResourceDefinitionEstablishedBlank = diemetav1.ConditionBlank.Type(DuckTypeConditionCustomResourceDefinitionEstablished).Status(metav1.ConditionUnknown).Reason("Initializing")
 )
 
-func (d *DuckTypeStatusDie) InitializeConditionsDie(now time.Time) *DuckTypeStatusDie {
+func (d *DuckTypeStatusDie) InitializeConditions(now time.Time) *DuckTypeStatusDie {
 	ctx := rtime.StashNow(context.TODO(), now)
 	return d.DieStamp(func(r *DuckTypeStatus) {
 		r.InitializeConditions(ctx)
@@ -66,4 +67,14 @@ func (d *DuckTypeStatusDie) ConditionDie(v string, fn func(d *diemetav1.Conditio
 		fn(d)
 		r.Conditions = append(r.Conditions, d.DieRelease())
 	})
+}
+
+func (d *DuckTypeDie) AsDuck(name string) *DuckDie {
+	r := d.DieRelease()
+	return DuckBlank.
+		APIVersion(schema.GroupVersion{Group: r.Spec.Group, Version: "v1"}.String()).
+		Kind(r.Spec.Kind).
+		MetadataDie(func(d *diemetav1.ObjectMetaDie) {
+			d.Name(name)
+		})
 }

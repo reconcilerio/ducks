@@ -113,6 +113,11 @@ Inside a reconciler, the broker can be combined with a [tracker](https://github.
         return nil
     },
     Sync: func() error {
+        provisionedServiceClient := duckclient.New(
+            "provisionedservices.duck.servicebinding.io",
+            reconcilers.RetrieveConfigOrDie(ctx),
+        )
+
         // strongly typed representation of the duck type's shape
         provisionedService := &componentsv1alpha1.ProvisionedService{
             // type metadata for resource implementing the duck type
@@ -125,16 +130,11 @@ Inside a reconciler, the broker can be combined with a [tracker](https://github.
                 Name:      "my-externalservice"
             }
         }
-        // the DuckType resource
-        duckType := schema.GroupKind{
-            Group: "duck.servicebinding.io",
-            Kind:  "ProvisionedService",
-        }
 
         // get the provisioned service and track it for changes
-        if err := duckclient.TrackAndGet(ctx, client.ObjectKeyFromObject(provisionedService), provisionedService, duckType); err != nil {
+        if err := provisionedServiceClient.TrackAndGet(ctx, client.ObjectKeyFromObject(provisionedService), provisionedService); err != nil {
             return err
-		}
+        }
 
         //  do something with the provisionedService
 

@@ -67,7 +67,7 @@ func TestDuckTypeReconciler(t *testing.T) {
 			d.Kind("Duck")
 		}).
 		StatusDie(func(d *ducksv1.DuckTypeStatusDie) {
-			d.InitializeConditionsDie(now.Time)
+			d.InitializeConditions(now.Time)
 			d.ConditionDie(ducksv1.DuckTypeConditionCustomResourceDefinitionEstablished, func(d *diemetav1.ConditionDie) {
 				d.True()
 				d.Reason("Established")
@@ -242,7 +242,7 @@ func TestDuckReconciler(t *testing.T) {
 			d.Kind("DuckInstance")
 		}).
 		StatusDie(func(d *ducksv1.DuckStatusDie) {
-			d.InitializeConditionsDie(now.Time)
+			d.InitializeConditions(now.Time)
 			d.ConditionDie(ducksv1.DuckConditionAvailable, func(d *diemetav1.ConditionDie) {
 				d.True()
 				d.Reason("Available")
