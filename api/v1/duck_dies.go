@@ -30,7 +30,7 @@ var (
 	DuckConditionAvailableBlank = diemetav1.ConditionBlank.Type(DuckConditionAvailable).Status(metav1.ConditionUnknown).Reason("Initializing")
 )
 
-func (d *DuckStatusDie) InitializeConditionsDie(now time.Time) *DuckStatusDie {
+func (d *DuckStatusDie) InitializeConditions(now time.Time) *DuckStatusDie {
 	ctx := rtime.StashNow(context.TODO(), now)
 	return d.DieStamp(func(r *DuckStatus) {
 		r.InitializeConditions(ctx)
