@@ -317,9 +317,9 @@ func TestClient(t *testing.T) {
 
 				return obj, err
 			},
-			expected: testresources.ConditionDuckBlank.
-				DieFeedConvert(deploymentBlue.DieDefaultTypeMetadata()).
-				DieReleasePtr(),
+			expected: deploymentBlue.
+				DieDefaultTypeMetadata().
+				DieReleaseDuck(&testresources.ConditionDuck{}),
 		},
 		"get normalized version": {
 			config: &rtesting.ExpectConfig{
@@ -355,9 +355,9 @@ func TestClient(t *testing.T) {
 
 				return obj, err
 			},
-			expected: testresources.ConditionDuckBlank.
-				DieFeedConvert(jobBlue.DieDefaultTypeMetadata()).
-				DieReleasePtr(),
+			expected: jobBlue.
+				DieDefaultTypeMetadata().
+				DieReleaseDuck(&testresources.ConditionDuck{}),
 		},
 		"get and track": {
 			config: &rtesting.ExpectConfig{
@@ -393,9 +393,9 @@ func TestClient(t *testing.T) {
 
 				return obj, err
 			},
-			expected: testresources.ConditionDuckBlank.
-				DieFeedConvert(deploymentBlue.DieDefaultTypeMetadata()).
-				DieReleasePtr(),
+			expected: deploymentBlue.
+				DieDefaultTypeMetadata().
+				DieReleaseDuck(&testresources.ConditionDuck{}),
 		},
 		"list": {
 			config: &rtesting.ExpectConfig{
@@ -420,10 +420,10 @@ func TestClient(t *testing.T) {
 			},
 			expected: &testresources.ConditionDuckList{
 				Items: []testresources.ConditionDuck{
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
 				},
 			},
 		},
@@ -455,8 +455,8 @@ func TestClient(t *testing.T) {
 			},
 			expected: &testresources.ConditionDuckList{
 				Items: []testresources.ConditionDuck{
-					testresources.ConditionDuckBlank.DieFeedConvert(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
 				},
 			},
 		},
@@ -488,10 +488,10 @@ func TestClient(t *testing.T) {
 			},
 			expected: &testresources.ConditionDuckList{
 				Items: []testresources.ConditionDuck{
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
 				},
 			},
 		},
@@ -518,8 +518,8 @@ func TestClient(t *testing.T) {
 			},
 			expected: &testresources.ConditionDuckList{
 				Items: []testresources.ConditionDuck{
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(jobGreen.DieDefaultTypeMetadata()).DieRelease(),
 				},
 			},
 		},
@@ -551,8 +551,8 @@ func TestClient(t *testing.T) {
 			},
 			expected: &testresources.ConditionDuckList{
 				Items: []testresources.ConditionDuck{
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
-					testresources.ConditionDuckBlank.DieFeedConvert(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentBlue.DieDefaultTypeMetadata()).DieRelease(),
+					testresources.ConditionDuckBlank.DieFeedDuck(deploymentGreen.DieDefaultTypeMetadata()).DieRelease(),
 				},
 			},
 		},
