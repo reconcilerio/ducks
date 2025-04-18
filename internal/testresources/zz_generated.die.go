@@ -32,7 +32,7 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/json"
+	json "k8s.io/apimachinery/pkg/util/json"
 	jsonpath "k8s.io/client-go/util/jsonpath"
 	v1 "reconciler.io/dies/apis/meta/v1"
 	patch "reconciler.io/dies/patch"
@@ -79,6 +79,15 @@ func (d *ConditionDuckDie) DieFeedPtr(r *ConditionDuck) *ConditionDuckDie {
 		r = &ConditionDuck{}
 	}
 	return d.DieFeed(*r)
+}
+
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConditionDuckDie) DieFeedDuck(v any) *ConditionDuckDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
 }
 
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
@@ -141,6 +150,15 @@ func (d *ConditionDuckDie) DieReleaseUnstructured() *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: u,
 	}
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConditionDuckDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
@@ -408,6 +426,15 @@ func (d *ConditionDuckStatusDie) DieFeedPtr(r *ConditionDuckStatus) *ConditionDu
 	return d.DieFeed(*r)
 }
 
+// DieFeedDuck returns a new die with the provided value converted into the underlying type. Panics on error.
+func (d *ConditionDuckStatusDie) DieFeedDuck(v any) *ConditionDuckStatusDie {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return d.DieFeedJSON(data)
+}
+
 // DieFeedJSON returns a new die with the provided JSON. Panics on error.
 func (d *ConditionDuckStatusDie) DieFeedJSON(j []byte) *ConditionDuckStatusDie {
 	r := ConditionDuckStatus{}
@@ -456,6 +483,15 @@ func (d *ConditionDuckStatusDie) DieRelease() ConditionDuckStatus {
 func (d *ConditionDuckStatusDie) DieReleasePtr() *ConditionDuckStatus {
 	r := d.DieRelease()
 	return &r
+}
+
+// DieReleaseDuck releases the value into the passed value and returns the same. Panics on error.
+func (d *ConditionDuckStatusDie) DieReleaseDuck(v any) any {
+	data := d.DieReleaseJSON()
+	if err := json.Unmarshal(data, v); err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // DieReleaseJSON returns the resource managed by the die as JSON. Panics on error.
