@@ -1,7 +1,6 @@
 module reconciler.io/ducks
 
-go 1.23.0
-toolchain go1.24.1
+go 1.24.0
 
 require (
 	github.com/go-logr/logr v1.4.2
@@ -12,7 +11,7 @@ require (
 	k8s.io/client-go v0.33.0
 	k8s.io/kube-aggregator v0.33.0
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738
-	reconciler.io/dies v0.15.2-0.20250418121138-9eb7c4f3ff7d
+	reconciler.io/dies v0.16.0
 	reconciler.io/runtime v0.23.1-0.20250410190329-a8e006d4ac6c
 	sigs.k8s.io/controller-runtime v0.20.4
 	sigs.k8s.io/yaml v1.4.0
