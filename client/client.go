@@ -101,10 +101,13 @@ func (c *duckClient) ducks(ctx context.Context, duckGK schema.GroupKind, track b
 			// ignore ducks that are not ready, most likely the API does not exist
 			continue
 		}
-		if !duckGK.Empty() && duckGK.Group != duck.Spec.Group && duckGK.Kind != duck.Spec.Kind && duckGK.Kind != fmt.Sprintf("%sList", duck.Spec.Kind) {
-			continue
+		if duckGK.Empty() {
+			ducks = append(ducks, duck)
+		} else if duckGK.Group == duck.Spec.Group && duckGK.Kind == duck.Spec.Kind {
+			ducks = append(ducks, duck)
+		} else if duckGK.Group == duck.Spec.Group && duckGK.Kind == fmt.Sprintf("%sList", duck.Spec.Kind) {
+			ducks = append(ducks, duck)
 		}
-		ducks = append(ducks, duck)
 	}
 
 	if !duckGK.Empty() && len(ducks) == 0 {
