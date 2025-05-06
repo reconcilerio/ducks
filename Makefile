@@ -7,7 +7,7 @@ KO ?= go run -modfile hack/ko/go.mod github.com/google/ko
 KUSTOMIZE ?= go run -modfile hack/kustomize/go.mod sigs.k8s.io/kustomize/kustomize/v5
 STERN ?= go run -modfile hack/stern/go.mod github.com/stern/stern
 
-KAPP_APP ?= ducks-runtime
+KAPP_APP ?= ducks
 KAPP_APP_NAMESPACE ?= default
 
 ifeq (${KO_DOCKER_REPO},kind.local)

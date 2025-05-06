@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-logr/logr"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -34,11 +33,9 @@ import (
 	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	duckv1 "reconciler.io/ducks/api/v1"
-	"reconciler.io/ducks/internal/submanager"
+	duckreconcilers "reconciler.io/ducks/reconcilers"
 )
 
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch;create;update;patch;delete
@@ -46,15 +43,15 @@ import (
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes/finalizers,verbs=update
 // +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 
-func DuckTypeReconciler(c reconcilers.Config, mgr ctrl.Manager) *reconcilers.ResourceReconciler[*duckv1.DuckType] {
+func DuckTypeReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*duckv1.DuckType] {
 	return &reconcilers.ResourceReconciler[*duckv1.DuckType]{
 		Reconciler: &reconcilers.WithFinalizer[*duckv1.DuckType]{
-			Finalizer: duckv1.GroupVersion.Group,
+			Finalizer: fmt.Sprintf("%s/reconciler", duckv1.GroupVersion.Group),
 
 			Reconciler: reconcilers.Sequence[*duckv1.DuckType]{
 				DuckClusterRoleChildSetReconciler(),
 				DuckCustomResourceDefinitionChildReconciler(),
-				DuckSubReconciler(mgr),
+				DuckSubReconciler(),
 			},
 		},
 
@@ -357,37 +354,18 @@ func DuckCustomResourceDefinitionChildReconciler() reconcilers.SubReconciler[*du
 	}
 }
 
-type managerEntry struct {
-	done   <-chan error
-	mgr    manager.Manager
-	config reconcilers.Config
-	cancel context.CancelFunc
-}
-
-func DuckSubReconciler(mgr ctrl.Manager) reconcilers.SubReconciler[*duckv1.DuckType] {
-	managers := map[string]managerEntry{}
-
-	return &reconcilers.SyncReconciler[*duckv1.DuckType]{
-		Sync: func(ctx context.Context, resource *duckv1.DuckType) error {
-			if _, ok := managers[resource.Name]; ok {
-				// already running
-				return nil
-			}
-
-			syncPeriod := 10 * time.Hour
-			mgr, err := submanager.New(mgr,
-				manager.Options{
-					Cache: cache.Options{
-						SyncPeriod: &syncPeriod,
-					},
-				},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: resource.Spec.Kind},
-				schema.GroupKind{Group: resource.Spec.Group, Kind: resource.Spec.ListKind},
-			)
-			if err != nil {
-				return err
-			}
-
+func DuckSubReconciler() reconcilers.SubReconciler[*duckv1.DuckType] {
+	syncPeriod := 10 * time.Hour
+	return &duckreconcilers.SubManagerReconciler[*duckv1.DuckType]{
+		AssertFinalizer: fmt.Sprintf("%s/reconciler", duckv1.GroupVersion.Group),
+		SyncPeriod:      &syncPeriod,
+		LocalTypes: func(ctx context.Context, resource *duckv1.DuckType) ([]schema.GroupKind, error) {
+			return []schema.GroupKind{
+				{Group: resource.Spec.Group, Kind: resource.Spec.Kind},
+				{Group: resource.Spec.Group, Kind: resource.Spec.ListKind},
+			}, nil
+		},
+		SetupWithSubManager: func(ctx context.Context, mgr ctrl.Manager, resource *duckv1.DuckType) error {
 			config := reconcilers.NewConfig(mgr, nil, syncPeriod)
 			typeMeta := metav1.TypeMeta{
 				APIVersion: schema.GroupVersion{Group: resource.Spec.Group, Version: "v1"}.String(),
@@ -395,28 +373,6 @@ func DuckSubReconciler(mgr ctrl.Manager) reconcilers.SubReconciler[*duckv1.DuckT
 			}
 			if err := DuckReconciler(config, typeMeta).SetupWithManager(ctx, mgr); err != nil {
 				return err
-			}
-
-			ctx, cancel := context.WithCancel(ctx)
-			ctx = logr.NewContext(ctx, ctrl.Log.WithName("DuckManager").WithValues("duck", resource.Name))
-			done := make(chan error)
-			managers[resource.Name] = managerEntry{done, mgr, config, cancel}
-			go func(ctx context.Context, mgr ctrl.Manager, name string) {
-				err := mgr.Start(ctx)
-				done <- err
-			}(ctx, mgr, resource.Name)
-
-			return nil
-		},
-		Finalize: func(ctx context.Context, resource *duckv1.DuckType) error {
-			manager, ok := managers[resource.Name]
-			if ok {
-				manager.cancel()
-				// block until shutdown is complete
-				if err := <-manager.done; err != nil {
-					logr.FromContextOrDiscard(ctx).Error(err, "problem running submanager")
-				}
-				delete(managers, resource.Name)
 			}
 
 			return nil
