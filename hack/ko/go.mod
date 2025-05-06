@@ -1,7 +1,6 @@
 module reconciler.io/ducks/hack/ko
 
-go 1.22.7
-toolchain go1.24.1
+go 1.24.0
 
 require github.com/google/ko v0.18.0
 
