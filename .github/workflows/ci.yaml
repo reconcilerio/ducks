@@ -259,11 +259,16 @@ jobs:
         - |-
           [plugins."io.containerd.grpc.v1.cri".registry.configs."local-registry".tls]
             ca_file  = "/etc/docker/certs.d/local-registry/ca.pem"
+        - |-
+          [plugins."io.containerd.grpc.v1.cri".registry.configs."local-registry:443".tls]
+            ca_file  = "/etc/docker/certs.d/local-registry:443/ca.pem"
         nodes:
         - role: control-plane
           image: ${{ matrix.node }}
           extraMounts:
           - containerPath: /etc/docker/certs.d/local-registry
+            hostPath: ${CERT_DIR}
+          - containerPath: /etc/docker/certs.d/local-registry:443
             hostPath: ${CERT_DIR}
         EOF
 
