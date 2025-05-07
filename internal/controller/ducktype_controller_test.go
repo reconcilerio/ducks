@@ -59,7 +59,7 @@ func TestDuckTypeReconciler(t *testing.T) {
 			d.Name(name)
 			d.CreationTimestamp(now)
 			d.Generation(1)
-			d.Finalizers(ducksv1.GroupVersion.Group)
+			d.Finalizers("duck.reconciler.io/reconciler")
 		}).
 		SpecDie(func(d *ducksv1.DuckTypeSpecDie) {
 			d.Group("example.com")
@@ -183,7 +183,11 @@ func TestDuckTypeReconciler(t *testing.T) {
 		if err != nil {
 			t.Fatalf("failed to create manager: %s", err)
 		}
-		return controller.DuckTypeReconciler(c, mgr)
+		r := controller.DuckTypeReconciler(c)
+		if err := r.SetupWithManager(t.Context(), mgr); err != nil {
+			t.Fatalf("failed to setup reconciler: %s", err)
+		}
+		return r
 	})
 }
 
@@ -234,7 +238,7 @@ func TestDuckReconciler(t *testing.T) {
 			d.Name(name)
 			d.CreationTimestamp(now)
 			d.Generation(1)
-			d.Finalizers(ducksv1.GroupVersion.Group)
+			d.Finalizers("duck.reconciler.io/reconciler")
 		}).
 		SpecDie(func(d *ducksv1.DuckSpecDie) {
 			d.Group("example.com")

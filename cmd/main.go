@@ -217,7 +217,7 @@ func main() {
 
 	config := reconcilers.NewConfig(mgr, nil, syncPeriod)
 
-	if err = controller.DuckTypeReconciler(config, mgr).SetupWithManager(ctx, mgr); err != nil {
+	if err = controller.DuckTypeReconciler(config.WithTracker()).SetupWithManager(ctx, mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DuckType")
 		os.Exit(1)
 	}

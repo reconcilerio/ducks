@@ -27,20 +27,25 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	toolscache "k8s.io/client-go/tools/cache"
 	"reconciler.io/runtime/apis"
+	"reconciler.io/runtime/reconcilers"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	duckv1 "reconciler.io/ducks/api/v1"
 )
 
-type Broker = broker[event.GenericEvent]
+type Broker interface {
+	Subscribe(ctx context.Context) <-chan event.GenericEvent
+	TrackedSource(ctx context.Context) source.Source
+}
 
 // NewBroker starts informers for all resources of a given duck type
-func NewBroker(mgr manager.Manager, duck schema.GroupKind) (*Broker, error) {
-	broker := &Broker{
+func NewBroker(mgr manager.Manager, duck schema.GroupKind) (Broker, error) {
+	broker := &broker{
 		name:      fmt.Sprintf("%sBroker", duck.Kind),
 		publishCh: make(chan event.GenericEvent, 1),
 		subCh:     make(chan chan event.GenericEvent, 1),
@@ -174,15 +179,15 @@ func NewBroker(mgr manager.Manager, duck schema.GroupKind) (*Broker, error) {
 }
 
 // adapted from https://stackoverflow.com/a/49877632
-type broker[T any] struct {
+type broker struct {
 	name      string
-	publishCh chan T
-	subCh     chan chan T
-	unsubCh   chan chan T
+	publishCh chan event.GenericEvent
+	subCh     chan chan event.GenericEvent
+	unsubCh   chan chan event.GenericEvent
 }
 
-func (b *broker[T]) Start(ctx context.Context) error {
-	subs := map[chan T]struct{}{}
+func (b *broker) Start(ctx context.Context) error {
+	subs := map[chan event.GenericEvent]struct{}{}
 	for {
 		select {
 		case <-ctx.Done():
@@ -203,10 +208,14 @@ func (b *broker[T]) Start(ctx context.Context) error {
 	}
 }
 
-func (b *broker[T]) Subscribe(ctx context.Context) chan T {
+func (b *broker) Publish(msg event.GenericEvent) {
+	b.publishCh <- msg
+}
+
+func (b *broker) Subscribe(ctx context.Context) <-chan event.GenericEvent {
 	logr.FromContextOrDiscard(ctx).WithName(b.name).Info("Subscribe")
 
-	msgCh := make(chan T, 5)
+	msgCh := make(chan event.GenericEvent, 5)
 	b.subCh <- msgCh
 	go func() {
 		<-ctx.Done()
@@ -215,6 +224,6 @@ func (b *broker[T]) Subscribe(ctx context.Context) chan T {
 	return msgCh
 }
 
-func (b *broker[T]) Publish(msg T) {
-	b.publishCh <- msg
+func (b *broker) TrackedSource(ctx context.Context) source.Source {
+	return source.Channel(b.Subscribe(ctx), reconcilers.EnqueueTracked(ctx))
 }
