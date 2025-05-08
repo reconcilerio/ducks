@@ -1,7 +1,6 @@
 module reconciler.io/ducks/hack/controller-gen
 
-go 1.23.0
-toolchain go1.24.1
+go 1.24.0
 
 require sigs.k8s.io/controller-tools v0.18.0
 
