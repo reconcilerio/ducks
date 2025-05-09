@@ -156,8 +156,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - node: kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865
-          version: v1.31.0
+        - node: kindest/node:v1.30.10@sha256:4de75d0e82481ea846c0ed1de86328d821c1e6a6a91ac37bf804e5313670e507
+          version: v1.30.10
+          os: ubuntu-latest
+        - node: kindest/node:v1.31.6@sha256:28b7cbb993dfe093c76641a0c95807637213c9109b761f1d422c2400e22b8e87
+          version: v1.31.6
+          os: ubuntu-latest
+        - node: kindest/node:v1.32.3@sha256:b36e76b4ad37b88539ce5e07425f77b29f73a8eaaebf3f1a8bc9c764401d118c
+          version: v1.32.3
+          os: ubuntu-latest
+        - node: kindest/node:v1.33.0@sha256:91e9ed777db80279c22d1d1068c091b899b2078506e4a0f797fbf6e397c0b0b2
+          version: v1.33.0
           os: ubuntu-latest
     env:
       REGISTRY_NAME: registry.local
@@ -170,7 +179,7 @@ jobs:
     - name: Install kind
       run: |
         cd $(mktemp -d -t kind.XXXX)
-        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-$(go env GOHOSTOS)-$(go env GOHOSTARCH)
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-$(go env GOHOSTOS)-$(go env GOHOSTARCH)
         chmod +x ./kind
         sudo mv ./kind /usr/local/bin
         cd -
@@ -239,24 +248,22 @@ jobs:
         set -o nounset
         set -o pipefail
 
-        # create a cluster with the local registry enabled in containerd
-        cat <<EOF | kind create cluster --config=-
-        kind: Cluster
-        apiVersion: kind.x-k8s.io/v1alpha4
-        containerdConfigPatches:
-        - |-
-          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."${REGISTRY_NAME}"]
-            endpoint = ["https://local-registry"]
-        - |-
-          [plugins."io.containerd.grpc.v1.cri".registry.configs."local-registry".tls]
-            ca_file  = "/etc/docker/certs.d/local-registry/ca.pem"
-        nodes:
-        - role: control-plane
-          image: ${{ matrix.node }}
-          extraMounts:
-          - containerPath: /etc/docker/certs.d/local-registry
-            hostPath: ${CERT_DIR}
+        # create a cluster with the custom image
+        kind create cluster --image="${{ matrix.node }}"
+
+        # add the registry config to the nodes
+        for node in $(kind get nodes); do
+          docker exec "${node}" mkdir -p "/etc/docker/certs.d/local-registry"
+          cat <<EOF | docker exec -i "${node}" cp /dev/stdin "/etc/docker/certs.d/local-registry/hosts.toml"
+        [host."https://local-registry"]
         EOF
+          cat ${CERT_DIR}/ca.pem | docker exec -i "${node}" cp /dev/stdin "/etc/docker/certs.d/local-registry/ca.pem"
+          docker exec "${node}" mkdir -p "/etc/docker/certs.d/${REGISTRY_NAME}"
+          cat <<EOF | docker exec -i "${node}" cp /dev/stdin "/etc/docker/certs.d/${REGISTRY_NAME}/hosts.toml"
+        [host."https://${REGISTRY_NAME}"]
+        EOF
+          cat ${CERT_DIR}/ca.pem | docker exec -i "${node}" cp /dev/stdin "/etc/docker/certs.d/${REGISTRY_NAME}/ca.pem"
+        done
 
         # connect the registry to the cluster network
         docker network connect kind local-registry
