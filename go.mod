@@ -3,7 +3,7 @@ module reconciler.io/ducks
 go 1.24.0
 
 require (
-	github.com/go-logr/logr v1.4.2
+	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.7.0
 	k8s.io/api v0.33.1
 	k8s.io/apiextensions-apiserver v0.33.1
