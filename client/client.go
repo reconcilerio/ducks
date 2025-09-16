@@ -200,6 +200,10 @@ func (c *duckClient) Watch(ctx context.Context, list client.ObjectList, opts ...
 	panic("Watch is not implemented for duck types")
 }
 
+func (c *duckClient) Apply(ctx context.Context, obj runtime.ApplyConfiguration, opts ...client.ApplyOption) error {
+	return c.client.Apply(ctx, obj, opts...)
+}
+
 func (c *duckClient) Create(ctx context.Context, obj client.Object, opts ...client.CreateOption) error {
 	return c.client.Create(ctx, obj, opts...)
 }
