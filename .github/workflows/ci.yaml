@@ -25,7 +25,7 @@ jobs:
     - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Test
       run: make test
     - name: Report coverage
@@ -49,7 +49,7 @@ jobs:
       KO_PLATFORMS: linux/amd64,linux/arm64
       BUNDLE: registry.local/ducks/bundle
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
@@ -163,7 +163,7 @@ jobs:
       REGISTRY_NAME: registry.local
       BUNDLE: registry.local/bundle
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
@@ -342,7 +342,7 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: 1.24.x
