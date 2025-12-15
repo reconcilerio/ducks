@@ -275,7 +275,7 @@ jobs:
             help: "https://kind.sigs.k8s.io/docs/user/local-registry/"
         EOF
     - name: Download staged bundle
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: reconcilerio-ducks-bundle.tar
     - name: Relocate bundle
@@ -350,7 +350,7 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Download staged bundle
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: reconcilerio-ducks-bundle.tar
     - name: Install crane
