@@ -232,8 +232,8 @@ k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 h1:Y3gxNAuB0OBLImH611+UDZ
 k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912/go.mod h1:kdmbQkyfwUagLfXIad1y2TdrjPFWp2Q89B3qkRwf/pQ=
 k8s.io/utils v0.0.0-20251002143259-bc988d571ff4 h1:SjGebBtkBqHFOli+05xYbK8YF1Dzkbzn+gDM4X9T4Ck=
 k8s.io/utils v0.0.0-20251002143259-bc988d571ff4/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
-reconciler.io/dies v0.17.0 h1:obT6o6IjmtrGwu70K5b+Qm9ABWI0rzukup7dvyEonLU=
-reconciler.io/dies v0.17.0/go.mod h1:NW02qHlQNCYda9/f2EYhg/adf0F706zmzYlOO965GpY=
+reconciler.io/dies v0.18.0 h1:XY0knxZSjfbgXMOcCL39lqaOSj2tBg3jPwP/FeIoxpg=
+reconciler.io/dies v0.18.0/go.mod h1:nH3PU3+dJEJ7GBFzslUFKOVbq/Gc0SIGL0Ltlp22/Ks=
 reconciler.io/runtime v0.24.1 h1:wY/X1FY1Ondn8gR957nvXEABK1VzvBNJFJs1YqmvLhg=
 reconciler.io/runtime v0.24.1/go.mod h1:0gyqgJGaKFoPxUZzqYZHrmUL7PCgbtW9aEOih1aqh3U=
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 h1:jpcvIRr3GLoUoEKRkHKSmGjxb6lWwrBlJsXc+eUYQHM=
