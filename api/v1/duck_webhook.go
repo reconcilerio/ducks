@@ -20,27 +20,22 @@ import (
 	"context"
 	"strings"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 func (r *Duck) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithDefaulter(r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &Duck{}
+var _ admission.Defaulter[*Duck] = &Duck{}
 
-func (r *Duck) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*Duck)
-
-	if err := r.Spec.Default(ctx); err != nil {
+func (r *Duck) Default(ctx context.Context, obj *Duck) error {
+	if err := obj.Spec.Default(ctx); err != nil {
 		return err
 	}
 
@@ -51,27 +46,25 @@ func (r *DuckSpec) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &Duck{}
+var _ admission.Validator[*Duck] = &Duck{}
 
-func (r *Duck) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Duck) ValidateCreate(ctx context.Context, obj *Duck) (warnings admission.Warnings, err error) {
 	if err := r.Default(ctx, obj); err != nil {
 		return nil, err
 	}
-	r = obj.(*Duck)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Duck) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Duck) ValidateUpdate(ctx context.Context, oldObj, newObj *Duck) (warnings admission.Warnings, err error) {
 	if err := r.Default(ctx, newObj); err != nil {
 		return nil, err
 	}
-	r = newObj.(*Duck)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *Duck) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *Duck) ValidateDelete(ctx context.Context, obj *Duck) (warnings admission.Warnings, err error) {
 	return
 }
 

@@ -41,7 +41,7 @@ import (
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=duck.reconciler.io,resources=ducktypes/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core;events.k8s.io,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 func DuckTypeReconciler(c reconcilers.Config) *reconcilers.ResourceReconciler[*duckv1.DuckType] {
 	return &reconcilers.ResourceReconciler[*duckv1.DuckType]{
