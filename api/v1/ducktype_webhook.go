@@ -21,29 +21,24 @@ import (
 	"fmt"
 	"strings"
 
-	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 //+kubebuilder:webhook:path=/validate-duck-reconciler-io-v1-ducktype,mutating=false,failurePolicy=fail,sideEffects=None,groups=duck.reconciler.io,resources=ducktypes,verbs=create;update,versions=v1,name=v1.ducktypes.duck.reconciler.io,admissionReviewVersions={v1,v1beta1}
 
 func (r *DuckType) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+	return ctrl.NewWebhookManagedBy(mgr, r).
 		WithDefaulter(r).
 		WithValidator(r).
 		Complete()
 }
 
-var _ webhook.CustomDefaulter = &DuckType{}
+var _ admission.Defaulter[*DuckType] = &DuckType{}
 
-func (r *DuckType) Default(ctx context.Context, obj runtime.Object) error {
-	r = obj.(*DuckType)
-
-	if err := r.Spec.Default(ctx); err != nil {
+func (r *DuckType) Default(ctx context.Context, obj *DuckType) error {
+	if err := obj.Spec.Default(ctx); err != nil {
 		return err
 	}
 
@@ -61,27 +56,25 @@ func (r *DuckTypeSpec) Default(ctx context.Context) error {
 	return nil
 }
 
-var _ webhook.CustomValidator = &DuckType{}
+var _ admission.Validator[*DuckType] = &DuckType{}
 
-func (r *DuckType) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *DuckType) ValidateCreate(ctx context.Context, obj *DuckType) (warnings admission.Warnings, err error) {
 	if err := r.Default(ctx, obj); err != nil {
 		return nil, err
 	}
-	r = obj.(*DuckType)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, obj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *DuckType) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *DuckType) ValidateUpdate(ctx context.Context, oldObj, newObj *DuckType) (warnings admission.Warnings, err error) {
 	if err := r.Default(ctx, newObj); err != nil {
 		return nil, err
 	}
-	r = newObj.(*DuckType)
 
-	return nil, r.Validate(ctx, field.NewPath("")).ToAggregate()
+	return nil, newObj.Validate(ctx, field.NewPath("")).ToAggregate()
 }
 
-func (r *DuckType) ValidateDelete(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (r *DuckType) ValidateDelete(ctx context.Context, obj *DuckType) (warnings admission.Warnings, err error) {
 	return
 }
 
