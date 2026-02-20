@@ -54,3 +54,13 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+- package-ecosystem: gomod
+  directory: "/hack/yq"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: gomod
+  directory: "/hack/stern"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
