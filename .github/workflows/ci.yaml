@@ -144,7 +144,7 @@ jobs:
           ${IMGPKG} push -f "${scratch}" -b "${BUNDLE}"
           ${IMGPKG} copy -b "${BUNDLE}" --to-tar reconcilerio-ducks-bundle.tar
         echo "##[endgroup]"
-    - uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v7
       with:
         name: reconcilerio-ducks-bundle.tar
         path: reconcilerio-ducks-bundle.tar
