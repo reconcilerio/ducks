@@ -1,12 +1,12 @@
 module reconciler.io/ducks/hack/kbld
 
-go 1.25.6
+go 1.25.7
 
-require carvel.dev/kbld v0.47.1
+require carvel.dev/kbld v0.47.2
 
 require (
-	carvel.dev/imgpkg v0.47.1 // indirect
-	carvel.dev/vendir v0.45.1 // indirect
+	carvel.dev/imgpkg v0.47.2 // indirect
+	carvel.dev/vendir v0.45.2 // indirect
 	github.com/carvel-dev/semver/v4 v4.0.1-0.20240402203627-beb83fbf25e4 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/cppforlife/cobrautil v0.0.0-20221021151949-d60711905d65 // indirect
