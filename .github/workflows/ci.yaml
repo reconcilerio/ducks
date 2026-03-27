@@ -30,7 +30,7 @@ jobs:
     - name: Test
       run: make test
     - name: Report coverage
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Disallow generated drift
