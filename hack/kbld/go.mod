@@ -2,17 +2,17 @@ module reconciler.io/ducks/hack/kbld
 
 go 1.25.7
 
-require carvel.dev/kbld v0.47.2
+require carvel.dev/kbld v0.47.3
 
 require (
 	carvel.dev/imgpkg v0.47.2 // indirect
-	carvel.dev/vendir v0.45.2 // indirect
-	github.com/carvel-dev/semver/v4 v4.0.1-0.20240402203627-beb83fbf25e4 // indirect
+	carvel.dev/vendir v0.45.3 // indirect
+	github.com/carvel-dev/semver/v4 v4.0.1-0.20260413160702-f136b2e8bf02 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/cppforlife/cobrautil v0.0.0-20221021151949-d60711905d65 // indirect
 	github.com/cppforlife/color v1.9.1-0.20200716202919-6706ac40b835 // indirect
 	github.com/cppforlife/go-cli-ui v0.0.0-20220428182907-73db60c7611a // indirect
-	github.com/docker/cli v28.2.2+incompatible // indirect
+	github.com/docker/cli v29.2.0+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
@@ -31,7 +31,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cobra v1.10.1 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
