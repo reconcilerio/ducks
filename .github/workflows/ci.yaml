@@ -117,13 +117,13 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - name: OCI Registry
+    - name: OCI registry
       uses: reconcilerio/registry@v1
       id: registry
       with:
         hostname: ${{ env.REGISTRY_NAME }}
-    - name: Kind cluster
-      uses: reconcilerio/kind@main
+    - name: kind cluster
+      uses: reconcilerio/kind@v1
       with:
         kubernetes-version: ${{ matrix.kubernetes }}
         registry: ${{ steps.registry.outputs.registry }}
