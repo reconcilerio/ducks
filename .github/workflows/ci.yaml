@@ -209,12 +209,7 @@ jobs:
       with:
         name: reconcilerio-ducks-bundle.tar
     - name: Install crane
-      run: |
-        cd $(mktemp -d -t crane.XXXX)
-        curl -L https://github.com/google/go-containerregistry/releases/download/v0.9.0/go-containerregistry_Linux_x86_64.tar.gz | tar -xz
-        chmod +x ./crane
-        sudo mv ./crane /usr/local/bin
-        cd -
+      uses: reconcilerio/install-crane-action@v1
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v4
       with:
