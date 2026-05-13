@@ -10,13 +10,90 @@ on:
     - 'v[0-9]+\.[0-9]+\.[0-9]+-?**'
   pull_request: {}
 
-env:
-  IMGPKG: go run -modfile hack/imgpkg/go.mod carvel.dev/imgpkg/cmd/imgpkg
-  KAPP: go run -modfile hack/kapp/go.mod carvel.dev/kapp/cmd/kapp
-  KBLD: go run -modfile hack/kbld/go.mod carvel.dev/kbld/cmd/kbld
-  KO: go run -modfile hack/ko/go.mod github.com/google/ko
-
 jobs:
+
+  tools:
+    # Synthetic job to host config anchors referenced by other jobs.
+    # Running this job does no meaningful work, but would pass.
+    name: Build and cache tools
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: go.mod
+        cache-dependency-path: '**/*.sum'
+    - &install-controller-gen
+      name: Install controller-gen
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: sigs.k8s.io/controller-tools/cmd/controller-gen
+        working-directory: hack/controller-gen
+        output-path-env: CONTROLLER_GEN
+    - &install-diegen
+      name: Install diegen
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: reconciler.io/dies/diegen
+        working-directory: hack/diegen
+        output-path-env: DIEGEN
+    - &install-goimports
+      name: Install goimports
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: golang.org/x/tools/cmd/goimports
+        working-directory: hack/goimports
+        output-path-env: GOIMPORTS
+    - &install-imgpkg
+      name: Install imgpkg
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: carvel.dev/imgpkg/cmd/imgpkg
+        working-directory: hack/imgpkg
+        output-path-env: IMGPKG
+    - &install-kapp
+      name: Install kapp
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: carvel.dev/kapp/cmd/kapp
+        working-directory: hack/kapp
+        output-path-env: KAPP
+    - &install-kbld
+      name: Install kbld
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: carvel.dev/kbld/cmd/kbld
+        working-directory: hack/kbld
+        output-path-env: KBLD
+    - &install-ko
+      name: Install ko
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/google/ko
+        working-directory: hack/ko
+        output-path-env: KO
+    - &install-kustomize
+      name: Install kustomize
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: sigs.k8s.io/kustomize/kustomize/v5
+        working-directory: hack/kustomize
+        output-path-env: KUSTOMIZE
+    - &install-stern
+      name: Install stern
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/stern/stern
+        working-directory: hack/stern
+        output-path-env: STERN
+    - &install-yq
+      name: Install yq
+      uses: reconcilerio/go-install-action@v1
+      with:
+        package: github.com/mikefarah/yq/v4
+        working-directory: hack/yq
+        output-path-env: YQ
 
   unit:
     name: Unit Test
@@ -27,6 +104,10 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - *install-controller-gen
+    - *install-diegen
+    - *install-goimports
+    - *install-kustomize
     - name: Test
       run: make test
     - name: Report coverage
@@ -55,6 +136,9 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - *install-imgpkg
+    - *install-kbld
+    - *install-ko
     - name: Local Registry
       uses: reconcilerio/registry@v1
       id: registry
@@ -117,6 +201,9 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - *install-imgpkg
+    - *install-kapp
+    - *install-kbld
     - name: OCI registry
       uses: reconcilerio/registry@v1
       id: registry
@@ -201,6 +288,8 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
+    - *install-imgpkg
+    - *install-kbld
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
