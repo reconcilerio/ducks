@@ -53,12 +53,12 @@ manifests: internal-manifests ## Generate WebhookConfiguration, ClusterRole and 
 
 .PHONY: internal-manifests
 internal-manifests:
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./api/...;./internal/..." output:crd:artifacts:config=config/crd/bases
 
 .PHONY: generate
 generate: ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
-	$(DIEGEN) die:headerFile="hack/boilerplate.go.txt" paths="./..."
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./api/...;./internal/..."
+	$(DIEGEN) die:headerFile="hack/boilerplate.go.txt" paths="./api/...;./internal/..."
 	@$(MAKE) fmt
 
 .PHONY: fmt
