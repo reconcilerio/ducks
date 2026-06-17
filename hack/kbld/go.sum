@@ -1,7 +1,7 @@
 carvel.dev/imgpkg v0.48.1 h1:Ea6UufZKqSg9S6Bf1s83ye9GoLTnnAudIEDLSww3C7w=
 carvel.dev/imgpkg v0.48.1/go.mod h1:5+V0WDTaVOxnUosJ/6btoL7rXvmDCWYlBYV3BS9LBhg=
-carvel.dev/kbld v0.49.0 h1:2uRhmfcCU9hq3af59LYES8YKX+DYLGa20nAlVcgvmMs=
-carvel.dev/kbld v0.49.0/go.mod h1:BZ4NjHPebN2Di9fepOK5RsE92+BKxddOfRTFnCWOO/Q=
+carvel.dev/kbld v0.49.1 h1:MTzlYsE8jh5NgO8jXPmviet7PxAj9YLvF4AUWeYcbY8=
+carvel.dev/kbld v0.49.1/go.mod h1:BZ4NjHPebN2Di9fepOK5RsE92+BKxddOfRTFnCWOO/Q=
 carvel.dev/vendir v0.45.4 h1:FO6JVnr0aA0Qd8Ews2baIjYRAejyBSxVvLMuSqVvwTk=
 carvel.dev/vendir v0.45.4/go.mod h1:ArnuY2g3wXtY4okBnJ4PpU7GyJGTot0w9hsuwXP0Rvw=
 github.com/carvel-dev/semver/v4 v4.0.1 h1:tGL+KPLJ/fnZTz7ssct0PO+HmiJLZYG+h6Im7KMcNFY=

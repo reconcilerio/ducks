@@ -2,7 +2,7 @@ module reconciler.io/ducks/hack/kbld
 
 go 1.26.3
 
-require carvel.dev/kbld v0.49.0
+require carvel.dev/kbld v0.49.1
 
 require (
 	carvel.dev/imgpkg v0.48.1 // indirect
