@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     if: false
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
@@ -109,7 +109,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
@@ -141,7 +141,7 @@ jobs:
       KO_PLATFORMS: linux/amd64,linux/arm64
       BUNDLE: registry.local/ducks/bundle
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
@@ -206,7 +206,7 @@ jobs:
       REGISTRY_NAME: registry.local
       BUNDLE: registry.local/bundle
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
@@ -293,7 +293,7 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version-file: go.mod
