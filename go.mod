@@ -13,7 +13,7 @@ require (
 	k8s.io/client-go v0.36.2
 	k8s.io/kube-aggregator v0.36.2
 	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2
-	reconciler.io/dies v0.19.0
+	reconciler.io/dies v0.19.1
 	reconciler.io/runtime v0.26.1
 	sigs.k8s.io/controller-runtime v0.24.1
 	sigs.k8s.io/yaml v1.6.0
