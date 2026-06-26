@@ -24,86 +24,95 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - &install-controller-gen
-      name: Install controller-gen
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: sigs.k8s.io/controller-tools/cmd/controller-gen
-        working-directory: hack/controller-gen
-        output-path-env: CONTROLLER_GEN
-        toolchain: auto
-    - &install-diegen
-      name: Install diegen
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: reconciler.io/dies/diegen
-        working-directory: hack/diegen
-        output-path-env: DIEGEN
-        toolchain: auto
-    - &install-goimports
-      name: Install goimports
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: golang.org/x/tools/cmd/goimports
-        working-directory: hack/goimports
-        output-path-env: GOIMPORTS
-        toolchain: auto
-    - &install-imgpkg
-      name: Install imgpkg
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/imgpkg/cmd/imgpkg
-        working-directory: hack/imgpkg
-        output-path-env: IMGPKG
-        toolchain: auto
-    - &install-kapp
-      name: Install kapp
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/kapp/cmd/kapp
-        working-directory: hack/kapp
-        output-path-env: KAPP
-        toolchain: auto
-    - &install-kbld
-      name: Install kbld
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: carvel.dev/kbld/cmd/kbld
-        working-directory: hack/kbld
-        output-path-env: KBLD
-        toolchain: auto
-    - &install-ko
-      name: Install ko
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/google/ko
-        working-directory: hack/ko
-        output-path-env: KO
-        toolchain: auto
-    - &install-kustomize
-      name: Install kustomize
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: sigs.k8s.io/kustomize/kustomize/v5
-        working-directory: hack/kustomize
-        output-path-env: KUSTOMIZE
-        toolchain: auto
-    - &install-stern
-      name: Install stern
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/stern/stern
-        working-directory: hack/stern
-        output-path-env: STERN
-        toolchain: auto
-    - &install-yq
-      name: Install yq
-      uses: reconcilerio/go-install-action@v1
-      with:
-        package: github.com/mikefarah/yq/v4
-        working-directory: hack/yq
-        output-path-env: YQ
-        toolchain: auto
+    - parallel:
+      - &install-controller-gen
+        name: Install controller-gen
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: sigs.k8s.io/controller-tools/cmd/controller-gen
+          working-directory: hack/controller-gen
+          download-url-template: https://github.com/kubernetes-sigs/controller-tools/releases/download/${version}/controller-gen-${os}-${arch}
+          output-path-env: CONTROLLER_GEN
+          toolchain: auto
+      - &install-diegen
+        name: Install diegen
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: reconciler.io/dies/diegen
+          working-directory: hack/diegen
+          download-url-template: https://github.com/reconcilerio/dies/releases/download/${version}/diegen-${os}-${arch}
+          output-path-env: DIEGEN
+          toolchain: auto
+      - &install-goimports
+        name: Install goimports
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: golang.org/x/tools/cmd/goimports
+          working-directory: hack/goimports
+          output-path-env: GOIMPORTS
+          toolchain: auto
+      - &install-imgpkg
+        name: Install imgpkg
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/imgpkg/cmd/imgpkg
+          working-directory: hack/imgpkg
+          download-url-template: https://github.com/carvel-dev/imgpkg/releases/download/${version}/imgpkg-${os}-${arch}
+          output-path-env: IMGPKG
+          toolchain: auto
+      - &install-kapp
+        name: Install kapp
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/kapp/cmd/kapp
+          working-directory: hack/kapp
+          download-url-template: https://github.com/carvel-dev/kapp/releases/download/${version}/kapp-${os}-${arch}
+          output-path-env: KAPP
+          toolchain: auto
+      - &install-kbld
+        name: Install kbld
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: carvel.dev/kbld/cmd/kbld
+          working-directory: hack/kbld
+          download-url-template: https://github.com/carvel-dev/kbld/releases/download/${version}/kbld-${os}-${arch}
+          output-path-env: KBLD
+          toolchain: auto
+      - &install-ko
+        name: Install ko
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/google/ko
+          working-directory: hack/ko
+          output-path-env: KO
+          toolchain: auto
+      - &install-kustomize
+        name: Install kustomize
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: sigs.k8s.io/kustomize/kustomize/v5
+          working-directory: hack/kustomize
+          download-url-template: https://github.com/ko-build/ko/releases/download/${version}/ko_${version:1}_${os^}_${arch/amd64/x86_64}.tar.gz
+          output-path-env: KUSTOMIZE
+          toolchain: auto
+      - &install-stern
+        name: Install stern
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/stern/stern
+          working-directory: hack/stern
+          download-url-template: https://github.com/stern/stern/releases/download/${version}/stern_${version:1}_${os}_${arch}.tar.gz
+          output-path-env: STERN
+          toolchain: auto
+      - &install-yq
+        name: Install yq
+        uses: reconcilerio/go-install-action@v1
+        with:
+          package: github.com/mikefarah/yq/v4
+          working-directory: hack/yq
+          download-url-template: https://github.com/mikefarah/yq/releases/download/${version}/yq_${os}_${arch}
+          output-path-env: YQ
+          toolchain: auto
 
   unit:
     name: Unit Test
@@ -114,10 +123,11 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - *install-controller-gen
-    - *install-diegen
-    - *install-goimports
-    - *install-kustomize
+    - parallel:
+      - *install-controller-gen
+      - *install-diegen
+      - *install-goimports
+      - *install-kustomize
     - name: Test
       run: make test
     - name: Report coverage
@@ -146,9 +156,10 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - *install-imgpkg
-    - *install-kbld
-    - *install-ko
+    - parallel:
+      - *install-imgpkg
+      - *install-kbld
+      - *install-ko
     - name: Local Registry
       uses: reconcilerio/registry@v1
       id: registry
@@ -211,9 +222,10 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - *install-imgpkg
-    - *install-kapp
-    - *install-kbld
+    - parallel:
+      - *install-imgpkg
+      - *install-kapp
+      - *install-kbld
     - name: OCI registry
       uses: reconcilerio/registry@v1
       id: registry
@@ -298,8 +310,9 @@ jobs:
       with:
         go-version-file: go.mod
         cache-dependency-path: '**/*.sum'
-    - *install-imgpkg
-    - *install-kbld
+    - parallel:
+      - *install-imgpkg
+      - *install-kbld
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
