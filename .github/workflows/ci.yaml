@@ -85,6 +85,7 @@ jobs:
           package: github.com/google/ko
           working-directory: hack/ko
           download-url-template: https://github.com/ko-build/ko/releases/download/${version}/ko_${version:1}_${os^}_${arch/amd64/x86_64}.tar.gz
+          download-path-within-archive: ko
           output-path-env: KO
           toolchain: auto
       - &install-kustomize
@@ -93,7 +94,8 @@ jobs:
         with:
           package: sigs.k8s.io/kustomize/kustomize/v5
           working-directory: hack/kustomize
-          download-url-template: https://github.com/ko-build/ko/releases/download/${version}/ko_${version:1}_${os^}_${arch/amd64/x86_64}.tar.gz
+          download-url-template: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${version}/kustomize_${version}_${os}_${arch}.tar.gz
+          download-path-within-archive: kustomize
           output-path-env: KUSTOMIZE
           toolchain: auto
       - &install-stern
@@ -103,6 +105,7 @@ jobs:
           package: github.com/stern/stern
           working-directory: hack/stern
           download-url-template: https://github.com/stern/stern/releases/download/${version}/stern_${version:1}_${os}_${arch}.tar.gz
+          download-path-within-archive: stern
           output-path-env: STERN
           toolchain: auto
       - &install-yq
